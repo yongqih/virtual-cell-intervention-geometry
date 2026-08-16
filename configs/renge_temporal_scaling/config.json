@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "frozen_before_results_at": "2026-08-13T09:49:59-04:00",
+  "outer_repeats": 50,
+  "outer_split_seed": 213069,
+  "heldout_sources_per_repeat": 5,
+  "training_source_counts": [6, 8, 10, 12, 14, 16, 18],
+  "subsets_per_count": 10,
+  "subset_seed": 1399213069,
+  "fixed_ridge_alpha": 100.0,
+  "temporal_conditions": {
+    "T1_Day5Only": [],
+    "T2_Day2_Day5": [[0, 3]],
+    "T2b_Day3_Day5": [[1, 3]],
+    "T3_Day2_Day3_Day5": [[0, 1], [1, 3]],
+    "T3b_Day3_Day4_Day5": [[1, 2], [2, 3]],
+    "T4_AllDays": [[0, 1], [1, 2], [2, 3]]
+  },
+  "matched_information_budgets": [[8, "T4_AllDays", 16, "T1_Day5Only"], [10, "T4_AllDays", 18, "T1_Day5Only"]],
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 1400213069,
+  "measurement_cell_caps": [10, 20, 40, 80, "max"],
+  "measurement_bootstrap_repeats": 10,
+  "measurement_outer_repeats": 10,
+  "measurement_seed": 1500213069,
+  "local_neighbors": 2,
+  "practical_temporal_gain": 0.05,
+  "strict_boundaries": [
+    "Held-out source absent at all timepoints",
+    "One fitted model per held-out group",
+    "No stitched LOO geometry",
+    "Fixed ridge family and alpha across source counts and temporal depths",
+    "All temporal descriptors fit on training sources only",
+    "Previous result directories read-only",
+    "No GPU, neural architecture, CD4, GEARS/scGPT, GO/PPI/GRN"
+  ]
+}

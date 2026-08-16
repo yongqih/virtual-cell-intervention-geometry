@@ -1,0 +1,21 @@
+{
+  "genes": 64,
+  "train_sources": 44,
+  "validation_sources": 20,
+  "world_seeds": [1101, 2202, 3303, 4404, 5505],
+  "base_random_edge_probability": 0.08,
+  "max_in_degree": 7,
+  "max_out_degree": 7,
+  "edge_magnitude_min": 0.3,
+  "edge_magnitude_max": 1.0,
+  "target_spectral_radius": 0.75,
+  "propagation_alpha": 0.7,
+  "propagation_steps": 3,
+  "nonlinearity": "none",
+  "observation_noise_sd": 0.02,
+  "train_observations_per_source": 12,
+  "validation_observations_per_source": 16,
+  "control_state": "fixed_zero",
+  "sealed_real_test_open_count": 0
+}
+

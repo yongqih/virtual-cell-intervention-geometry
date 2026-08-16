@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "frozen_before_results_at": "2026-08-13T08:24:05-04:00",
+  "source_disjoint_repeats": 50,
+  "outer_split_seed": 213069,
+  "inner_split_seed_offset": 88121,
+  "pseudoreplicate_repeats": 100,
+  "pseudoreplicate_seed": 844213069,
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 955213069,
+  "ridge_alpha_grid": [0.01, 0.1, 1.0, 10.0, 100.0],
+  "direct_representations": ["Static", "CorrectLag", "FullDynamic"],
+  "primary_direct_selection": "two-fold inner-source validation; maximize grouped geometry, then response Pearson, then minimize MSE",
+  "frozen_chain": "CorrectLag ridge first-wave prediction plus GeneLevelDense affine transition with training-only alpha selection",
+  "local_neighbors": 3,
+  "fusion_lambda_grid": [-1.0, -0.5, 0.0, 0.25, 0.5, 0.75, 1.0, 1.5],
+  "success_standard": {
+    "minimum_delta_r5_grouped_geometry": 0.05,
+    "paired_repeat_bootstrap_ci_low_must_exceed": 0.0
+  },
+  "claim_scoring": {
+    "claim_2": "PASS iff chain-minus-direct R5 geometry >=0.05 and paired repeat-bootstrap CI lower bound >0",
+    "claim_3": "PASS iff residual chain-minus-direct geometry >=0.05 and paired repeat-bootstrap CI lower bound >0",
+    "claim_4": "PASS iff oracle-W23 chain-minus-direct geometry >=0.05 and CI lower bound >0; PARTIAL iff point delta >0 or an earlier oracle entry clears the gate",
+    "claim_5": "PASS iff fused-minus-direct geometry >=0.05 with CI lower bound >0; PARTIAL iff fusion improves response Pearson or residual correction alignment is positive with nonredundant errors",
+    "claim_6": "PASS iff any claimed propagation advantage clears the grouped artifact-safe success standard"
+  },
+  "strict_boundaries": [
+    "Held-out sources are absent at every timepoint from fitting and selection",
+    "All perturbations in a held-out group use one fitted model",
+    "No stitched leave-one-out geometry",
+    "Previous completed result directories are read-only",
+    "No GPU model, new architecture, Markov retuning, or CD4 analysis"
+  ]
+}

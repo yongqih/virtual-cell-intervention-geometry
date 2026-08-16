@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "frozen_before_results_at": "2026-08-13T10:39:32-04:00",
+  "source_disjoint_repeats": 50,
+  "outer_split_seed": 213069,
+  "fixed_ridge_alpha": 100.0,
+  "interaction_rank": 4,
+  "local_neighbors": 3,
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 1611213069,
+  "practical_geometry_delta": 0.05,
+  "mechanistic_geometry_delta": 0.05,
+  "minimum_variance_retention": 0.1,
+  "population_pca_rank": 5,
+  "optional_remedy_gate": {
+    "requires_mechanism_delta_at_least": 0.05,
+    "requires_ci_low_above": 0.0,
+    "requires_deployable_signal": true
+  },
+  "strict_boundaries": [
+    "Held-out source absent at all timepoints",
+    "One fitted model predicts each held-out group",
+    "No stitched LOO geometry",
+    "Leakage-safe CorrectLag source descriptor for unseen perturbations",
+    "One-hot identity diagnostic is not used",
+    "Previous result directories read-only",
+    "No GPU, neural architecture, CD4, GEARS/scGPT, GO/PPI/GRN"
+  ]
+}

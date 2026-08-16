@@ -1,0 +1,52 @@
+{
+  "audit_type": "recovery_integrity_audit_no_model_selection",
+  "created_before_artifact_safe_reevaluation": "2026-08-13",
+  "primary_metric": "within-one-fitted-model cosine response-distance Spearman",
+  "secondary_metrics": [
+    "response-distance Pearson",
+    "per-response Pearson",
+    "residual MSE",
+    "PC1 fraction",
+    "PC80",
+    "PC90",
+    "PC95",
+    "participation ratio",
+    "entropy effective rank",
+    "between-perturbation variance ratio"
+  ],
+  "historical_grouping": {
+    "folds": 5,
+    "fold_seed": 1701,
+    "note": "Existing predictions permit five artifact-safe held-out groups, not 50 new refits. No new model claims are made from unavailable refits."
+  },
+  "executable_null_audit": {
+    "repeats": 50,
+    "folds_per_repeat": 2,
+    "base_seed_by_dataset": {
+      "K562_CRISPRi": 51001,
+      "RPE1_CRISPRi": 52001,
+      "Norman_CRISPRa": 53001
+    },
+    "predictor": "training-source mean response with no held-out source features"
+  },
+  "uncertainty": {
+    "source_bootstrap_draws": 1000,
+    "seed": 73191,
+    "method": "multinomial perturbation-source weights applied to unique within-group source pairs; equal group aggregation"
+  },
+  "train_oof_matching": {
+    "subsets_per_fold": 50,
+    "seed": 84317,
+    "subset_size": "same as that fold's OOF group"
+  },
+  "claim_rules": {
+    "artifact_demonstrated": "LOO-naive null rho > 0.5 and grouped null absolute rho <= 0.05",
+    "unseen_compression_pass": "Transformer grouped-rho upper 95% CI < 0.10 and prediction variance ratio < 0.25 and predicted PC1 fraction > truth PC1 fraction",
+    "unseen_compression_partial": "two of the three PASS conditions",
+    "large_gap_pass": "matched train minus OOF geometry lower 95% CI > 0.30",
+    "large_gap_partial": "point gap > 0.30 but lower CI does not exceed 0.30"
+  },
+  "no_silent_tuning": true,
+  "no_retraining": true,
+  "sealed_test_open_count_increment": 0
+}

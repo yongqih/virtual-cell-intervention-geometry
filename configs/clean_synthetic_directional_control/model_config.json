@@ -1,0 +1,19 @@
+{
+  "architecture": "self-contained GraphBiasTransformer",
+  "d_model": 64,
+  "layers": 2,
+  "heads": 4,
+  "ff_hidden": 128,
+  "dropout": 0.0,
+  "graph_bias_lambda": 4.0,
+  "graph_information": "edge existence + direction + sign only; no generator magnitude",
+  "optimizer": "AdamW",
+  "learning_rate": 0.003,
+  "weight_decay": 0.0001,
+  "epochs": 250,
+  "batch": "all 44 training sources",
+  "early_stopping": false,
+  "model_seed_policy": "9000 + world_index, matched across all conditions",
+  "loss": "trans-only MSE excluding direct source locus"
+}
+

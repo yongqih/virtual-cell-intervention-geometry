@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "frozen_before_true_model_results": "2026-08-13",
+  "source_disjoint_repeats": 50,
+  "outer_split_seed": 213069,
+  "pseudoreplicate_repeats": 50,
+  "pseudoreplicate_seed": 214069,
+  "ridge_alpha_grid": [0.01, 0.1, 1.0, 10.0, 100.0],
+  "information_doses": [0.0, 0.25, 0.5, 0.75, 1.0],
+  "dose_subsamples_per_outer_group": 5,
+  "bootstrap_resamples": 2000,
+  "early_gate": {
+    "minimum_w23_pseudoreplicate_median_geometry_rho": 0.1,
+    "minimum_count_reliable_waves_above_rho_0_1": 2,
+    "minimum_correct_lag_minus_static_geometry_rho": 0.05,
+    "minimum_correct_lag_minus_same_wave_geometry_rho": 0.0,
+    "minimum_correct_lag_minus_temporal_shuffle_geometry_rho": 0.0,
+    "minimum_correct_lag_minus_identity_shuffle_geometry_rho": 0.0,
+    "minimum_credit_head_minus_marginal_geometry_rho": 0.03
+  },
+  "metric": {
+    "primary": "within-held-out-group pair-specific strict-trans cosine response-distance Spearman",
+    "resampling_unit": "perturbation source gene / repeated held-out group",
+    "constant_prediction_geometry_rho": 0.0
+  }
+}

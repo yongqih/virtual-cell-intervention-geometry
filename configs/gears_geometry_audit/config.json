@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "created_before_new_metric_calculation": "2026-08-13T11:47:04-04:00",
+  "dataset": "Replogle 2022 RPE1 CRISPRi",
+  "primary_source_set": "all frozen GEARS-supported outer-OOF sources",
+  "primary_response_panel": "frozen strict-trans genes from frozen_sets.json",
+  "geometry": "row-L2-normalized cosine pairwise distance followed by Spearman correlation",
+  "residual_definition": "total perturbation response minus fold-specific mean response fitted on complete frozen outer-train sources",
+  "control_reference": "frozen global pseudobulk control_mean",
+  "local_neighbors": 10,
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 26081317,
+  "compression_rules": {
+    "low_variance_ratio": 0.5,
+    "low_distance_scale_retention": 0.75,
+    "low_entropy_rank_ratio": 0.5,
+    "strong_geometry_preservation": 0.5,
+    "near_absent_geometry": 0.2
+  },
+  "classification_rule": "SUPPORTED requires near-absent geometry plus at least two compression signals; PARTIALLY_SUPPORTED covers meaningful but incomplete geometry with at least two compression signals; otherwise NOT_SUPPORTED.",
+  "strict_rules": [
+    "No GEARS retraining or inference",
+    "No modification of final_literature_model_audit artifacts",
+    "No cross-fold pairwise geometry",
+    "Each geometry is computed only within one independently fitted model's held-out group",
+    "Primary bootstrap unit is perturbation source",
+    "No scGPT file or process access"
+  ]
+}

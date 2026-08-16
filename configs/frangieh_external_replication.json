@@ -1,0 +1,65 @@
+{
+  "status": "FROZEN_BEFORE_PSEUDOBULK_OR_PERFORMANCE_INSPECTION",
+  "dataset": {
+    "source_url": "https://exampledata.scverse.org/pertpy/frangieh_2021_rna.h5ad",
+    "source_reference": "Frangieh et al., Nature Genetics 2021, SCP1064; scPerturb RNA harmonization distributed by scverse/pertpy",
+    "local_path": "data/raw/frangieh_2021_rna.h5ad",
+    "expected_bytes": 1458928348,
+    "sha256": "cc42ef38bcf703a00e0c77c7945dd53159b12d814c438ae8afeaed9bc71f48d1",
+    "context_column": "perturbation_2",
+    "perturbation_column": "perturbation",
+    "control_label": "control"
+  },
+  "preprocessing": {
+    "minimum_cells_per_perturbation_context": 20,
+    "normalization": "per-cell counts per 10000 followed by log1p",
+    "response": "perturbation-context mean minus matched context control mean",
+    "rna_only": true,
+    "response_gene_axis": "intersection with frozen internal generalization_factorial/common_response_genes.txt, then exclude every primary-pair perturbation target",
+    "low_cell_robustness": "evaluate the same frozen predictions on targets above the pre-performance 25th percentile of paired-context minimum cell count"
+  },
+  "context_pair_selection": {
+    "rule": "maximum shared perturbations passing the frozen cell threshold; adequate matched controls; biologically distinct",
+    "primary_contexts": ["Co-culture", "IFNγ"],
+    "run_both_directions": true,
+    "supplementary_pairs": false
+  },
+  "target_selection": {
+    "target_count": 120,
+    "seed": 1701
+  },
+  "coverage_fractions": [0.10, 0.25, 0.40, 0.60, 0.80, 0.90],
+  "coverage_seeds": [0, 1, 2, 3, 4],
+  "model": {
+    "family": "repository direct multi-output Ridge/affine",
+    "alpha": 1.0,
+    "fit_intercept": true,
+    "input_standardization": "current training identities only",
+    "response_pca": false
+  },
+  "derangement_seed_base": 83001,
+  "bootstrap": {
+    "iterations": 500,
+    "seed": 94001,
+    "unit": "fixed target identity",
+    "paired_across_regimes_coverages_seeds_and_directions": true
+  },
+  "zero_shot": {
+    "descriptor": "EstablishedOBS71",
+    "minimum_eligible_interventions": 60,
+    "observed_eligible_interventions": 39,
+    "available": false,
+    "access_status": "ZERO_SHOT_EXTERNAL_BRANCH_NOT_DESCRIPTOR_ACCESSIBLE",
+    "verdict": "EXTERNAL_ZERO_SHOT_BRANCH_NOT_ACCESSIBLE"
+  },
+  "verdict_rules": {
+    "material_geometry_gain": 0.05,
+    "direction_clear": "primary ALIGNED_MINUS_SHUFFLE_90 estimate >= 0.05, paired CI lower > 0, and >=4/5 seed differences positive",
+    "identity_replicated": "direction_clear in both directions, aligned mean > shuffled mean at >=4/6 coverage levels in both directions, and HIGH_CELL_TARGETS ALIGNED_MINUS_SHUFFLE_90 CI lower > 0 in both directions",
+    "identity_partial": "direction_clear in exactly one direction, or both directions positive with at least one uncertain",
+    "identity_not_replicated": "primary ALIGNED_MINUS_SHUFFLE_90 CI upper < 0.05 in both directions",
+    "overall": "without an accessible zero-shot branch, successful identity replication yields GENERALIZATION_AXIS_ASYMMETRY_EXTERNAL_PARTIAL"
+  },
+  "max_projected_runtime_seconds": 7200,
+  "device": "CPU"
+}

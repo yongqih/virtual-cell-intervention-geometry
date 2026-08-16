@@ -1,0 +1,47 @@
+{
+  "status": "FROZEN_BEFORE_SMOKE_OR_FULL_FITS",
+  "paired_universe": "intersection of cached K562 perturbations, cached RPE1 perturbations, and EstablishedOBS71 identities",
+  "common_response_axis": "K562/RPE1 gene intersection minus every perturbation target in the paired universe",
+  "target_selection": {
+    "preferred_existing_fold": 0,
+    "minimum_fold0_shared_targets": 100,
+    "target_count": 120,
+    "fallback_seed": 1701
+  },
+  "coverage_fractions": [0.10, 0.25, 0.40, 0.60, 0.80, 0.90],
+  "coverage_seeds": [0, 1, 2, 3, 4],
+  "model": {
+    "family": "repository direct multi-output Ridge/affine",
+    "alpha": 1.0,
+    "fit_intercept": true,
+    "input_standardization": "training identities only",
+    "response_pca": false
+  },
+  "directions": ["K562_TO_RPE1", "RPE1_TO_K562"],
+  "regimes": ["ZERO_SHOT", "ALIGNED_ANCHOR", "SHUFFLED_ANCHOR"],
+  "derangement_seed_base": 73001,
+  "bootstrap": {
+    "iterations": 500,
+    "seed": 93001,
+    "unit": "fixed target identity",
+    "paired_across_regimes_coverages_seeds_and_directions": true,
+    "coverage_seed_summary": "mean"
+  },
+  "component_rules": {
+    "small_geometry_gain": 0.05,
+    "substantial_geometry_gain": 0.10,
+    "coverage_strong": "both directions ZERO_90_MINUS_ZERO_10 >= 0.10, CI lower > 0, and >=4/5 seed differences positive",
+    "coverage_weak": "both directions ZERO_90_MINUS_ZERO_10 < 0.05 and CI upper < 0.10",
+    "anchor_direction_clear": "ANCHOR_90_MINUS_ZERO_90 >= 0.05 and CI lower > 0; ANCHOR_MINUS_SHUFFLE_90 >= 0.05 and CI lower > 0; >=4/5 seed differences positive for both",
+    "anchor_supported": "anchor_direction_clear in both directions and aligned mean exceeds zero and shuffle at >=4/6 coverage levels in both directions",
+    "anchor_partial": "anchor_direction_clear in exactly one direction, or aligned>zero is clear in both but identity specificity is not clear in both",
+    "anchor_not_supported": "ANCHOR_90_MINUS_ZERO_90 CI upper < 0.05 in both directions",
+    "overall_supported": "coverage weak and anchor supported",
+    "overall_partial": "anchor supported or partial, unless coverage strong and anchor is not supported",
+    "overall_not_supported": "coverage strong and anchor not supported",
+    "external_replication": "justified only when anchor supported"
+  },
+  "cell_budget_control": "CELL_BUDGET_CONTROL_NOT_ACCESSIBLE: paired source-level K562 cache lacks cell counts; do not create a new multi-gigabyte cell-level pseudobulk pipeline",
+  "max_projected_runtime_seconds": 7200,
+  "device": "CPU"
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "frozen_at": "2026-08-13T07:04:33-04:00",
+  "purpose": "Diagnostic analysis only; no architecture or upstream-model tuning",
+  "upstream": {
+    "dataset_cache": "data/propagation_reproduction/cache/renge_processed.npz",
+    "correct_lag_implementation": "scripts/propagation_reproduction/parts_cde.py",
+    "transition_implementation": "scripts/propagation_reproduction/parts_fg.py",
+    "primary_transition": "GeneLevelDense pooled W23->W34 and W34->W45 ridge operator",
+    "program_basis_and_selection": "scripts/propagation_reproduction/part_h.py"
+  },
+  "splits": {
+    "source_disjoint_repeats": 50,
+    "outer_split_seed": 213069,
+    "one_model_per_heldout_group": true
+  },
+  "model": {
+    "ridge_alpha_grid": [0.01, 0.1, 1.0, 10.0, 100.0],
+    "program_dimensions": [4, 8, 10, 16],
+    "program_inner_validation_fraction": 0.2
+  },
+  "diagnostics": {
+    "interpolation_alpha": [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0],
+    "manifold_pca_dimension": 8,
+    "knn_neighbors": 3,
+    "residual_shrinkage": 0.25,
+    "global_scale": 2.0,
+    "orthogonal_noise_fraction": 0.2,
+    "finite_difference_relative_epsilon": 0.001
+  },
+  "statistics": {
+    "bootstrap_resamples": 2000,
+    "bootstrap_seed": 881213069,
+    "unit": "perturbation source; one global multinomial source-weight vector is reused across all repeated folds"
+  },
+  "claim_thresholds": {
+    "major_geometry_effect": 0.1,
+    "substantial_rescue_geometry": 0.05,
+    "geometry_preserved_rho": 0.95,
+    "dynamic_geometry_loss": 0.1,
+    "stronger_sensitivity_relative": 0.1
+  },
+  "primary_projection": "PCAProjection",
+  "scientific_boundaries": [
+    "Held-out perturbation source is absent at all days",
+    "All bases, manifolds, projections, normalizers and model selection use outer-training sources only",
+    "Oracle swaps and true/predicted interpolation are diagnostic only",
+    "No CD4, GO/PPI/GRN, attention, GPU architecture or silent tuning"
+  ]
+}
