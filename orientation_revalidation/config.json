@@ -1,0 +1,72 @@
+{
+  "protocol_version": "2026-08-17",
+  "master_seed": 20260817,
+  "output_dir": "results/igc_mechanism_revalidation_20260817",
+  "q_values": [0, 1, 2, 4, 8],
+  "ridge_alphas": [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0],
+  "ridge_selection_metric": "inner_source_disjoint_mean_residual_mse",
+  "residual_axis_method": "uncentered_svd_of_outer_training_oof_residuals",
+  "residual_axis_sign_convention": "largest_absolute_gene_loading_is_positive",
+  "random_subspace_replicates": 300,
+  "source_bootstrap_replicates": 2000,
+  "block_bootstrap_replicates": 2000,
+  "probability_curve_replicates": 500,
+  "probability_values": [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0],
+  "k562": {
+    "response_npz": "results/phase1/perturbation_response_matrix.npz",
+    "network_csv": "results/phase1/frozen_directed_signed_network.csv",
+    "outer_folds": 5,
+    "outer_assignment": "phase1_seed17_shuffle_then_round_robin",
+    "inner_folds": 4,
+    "eligible_sources": "perturbations_overlapping_response_genes",
+    "response_panel": "all_response_genes_minus_all_eligible_perturbation_sources",
+    "baseline_features": "signed_incoming_edges_from_current_training_sources_only",
+    "material_gain_threshold": 0.1
+  },
+  "jiang": {
+    "archive": "external/Jiang/DE_results_all_pathway.zip",
+    "pathways": ["IFNB", "IFNG", "INS"],
+    "cell_lines": ["A549", "BXPC3", "HAP1", "HT29", "K562", "MCF7"],
+    "outer_folds": 4,
+    "inner_folds": 4,
+    "response_panel": "genes_with_complete_log2fc_for_all_sources_and_all_six_cell_lines_minus_all_pathway_sources",
+    "baseline_features": "incoming_beta_from_current_training_sources_in_the_five_non_target_cell_lines",
+    "reliability_gene_split_replicates": 500,
+    "reliability_gate": 0.8,
+    "material_gain_threshold": 0.1
+  },
+  "pass_rules": {
+    "k562_min_positive_q1_q2_folds": 4,
+    "jiang_min_positive_blocks_of_18": 15,
+    "sign_only_min_fraction_exact_q2_gain": 0.4,
+    "random_null_empirical_alpha": 0.05
+  },
+  "renge": {
+    "official_commit": "ca0d636e3f0def8e51fb86fda26ad91cc7719a3d",
+    "official_X": "external/RENGE/examples/data/X_renge_d2_80.csv",
+    "official_E": "external/RENGE/examples/data/E_renge_d2_80.csv",
+    "official_A": "external/RENGE/examples/data/A_renge.csv",
+    "frozen_hyperparameters_from_official_notebook_best_trial_25": {
+      "C": 0.3803662136478438,
+      "A_l1_ratio": 0.000011940890480467532,
+      "n_k": 4,
+      "maxiter": 3000
+    },
+    "fidelity_thresholds": {
+      "off_diagonal_pearson": 0.8,
+      "off_diagonal_spearman": 0.8,
+      "sign_agreement": 0.75
+    },
+    "outer_folds": 4,
+    "outer_assignment": "master_seed_shuffle_then_round_robin",
+    "endpoint_axis_response_panel": "103_readouts_minus_all_23_perturbation_source_genes",
+    "endpoint_baseline": "standardized_ridge_from_12D_static_control_representation_with_inner_source_disjoint_alpha_selection",
+    "endpoint_axis_method": "uncentered_svd_of_outer_training_leave_one_source_out_residuals",
+    "orientation_score": "P_k_transpose_times_negative_A_column_g",
+    "time_shuffle": "permute_day_labels_within_each_perturbation_or_control_group",
+    "sign_reliability_replicates": 500,
+    "early_projection": "project_each_true_early_response_minus_the_frozen_endpoint_baseline_prediction_onto_training_only_endpoint_residual_axes",
+    "source_bootstrap_replicates": 2000,
+    "efg_seed": 20260817
+  }
+}
