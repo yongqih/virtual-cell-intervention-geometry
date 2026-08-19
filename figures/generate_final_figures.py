@@ -90,6 +90,33 @@ def summary_row(path: Path, **filters):
     return frame.iloc[0]
 
 
+def natural_fluctuation_source_dir() -> Path:
+    candidates = []
+    configured = os.environ.get("AI4SCI_NATURAL_SOURCE_DATA")
+    if configured:
+        candidates.append(Path(configured).resolve())
+    candidates.extend(
+        [
+            ROOT / "results" / "natural_fluctuation_igc_anchor" / "supplementary_figure5_source_data",
+            ROOT / "source_data" / "supplementary" / "SupplementaryFigure5",
+            ROOT.parent / "source_data" / "supplementary" / "SupplementaryFigure5",
+        ]
+    )
+    required = {
+        "SupplementaryFigure5_panel_e.csv",
+        "SupplementaryFigure5_panel_f.csv",
+        "SupplementaryFigure5_panel_g.csv",
+        "SupplementaryFigure5_panel_h.csv",
+    }
+    for candidate in candidates:
+        if candidate.is_dir() and required.issubset({path.name for path in candidate.iterdir()}):
+            return candidate
+    raise FileNotFoundError(
+        "Audited Supplementary Figure 5e-h source data was not found; "
+        "set AI4SCI_NATURAL_SOURCE_DATA to the released derived-data directory"
+    )
+
+
 def model_metrics():
     gears_h = pd.read_csv(ROOT / "results/gears_geometry_audit/standard_metrics.csv")
     gears_h = gears_h[(gears_h.record_type == "fold_mean") & (gears_h.model == "GEARS")]
@@ -464,20 +491,71 @@ def supplementary4():
 
 
 def supplementary5():
-    fig,ax=_supp_manual({"a":(.10,.58,.85,.32),"b":(.12,.11,.23,.30),"c":(.44,.11,.22,.30),"d":(.75,.11,.20,.30)},height=4.8)
+    fig,ax=_supp_manual({
+        "a":(.08,.70,.50,.23),
+        "b":(.70,.70,.26,.23),
+        "c":(.08,.38,.27,.20),
+        "d":(.41,.38,.24,.20),
+        "e":(.75,.38,.21,.20),
+        "f":(.08,.07,.27,.20),
+        "g":(.41,.07,.24,.20),
+        "h":(.75,.07,.21,.20),
+    },height=6.9)
     pca=pd.read_csv(ROOT/"results/final/response_basis/canonical_pca_cumulative_variance.csv");oracle=pd.read_csv(ROOT/"results/nature_comm_figure_derivations/k562_response_basis_curve_summary.csv")
     ax["a"].plot(pca.n_components,pca.cumulative_explained_variance,color=PRED,label="Explained variance");ax["a"].plot(oracle.components,oracle.heldout_oracle_reconstruction_pearson_mean,color=GEARS,label="Held-out oracle")
     for k in (8,16,32,64):ax["a"].axvline(k,color=GRID,lw=.55,zorder=0)
     ax["a"].set_xlim(1,128);ax["a"].set_ylim(.2,1);ax["a"].set_xticks([1,8,16,32,64,128]);ax["a"].set_xlabel("Number of response PCs");ax["a"].set_ylabel("Fraction / Pearson");ax["a"].set_title("Canonical response basis and oracle ceiling");ax["a"].legend(frameon=False,ncol=2);b.clean(ax["a"]);b.label(ax["a"],"a")
 
-    align=pd.read_csv(ROOT/"results/cross_dataset_replication_rpe1/state_intervention/pairwise_geometry_alignment.csv");ident=align[(align.record_type=="summary")&(align.panel=="primary_common_strict_trans")].copy();ident["label"]=ident.representation
-    _forest(ax["b"],ident,"label","spearman_rho","ci_low","ci_high",[BASE,PRED,GEARS],["s","o","D"],"Grouped geometry, ρ","Source identifiability");ax["b"].set_xlim(0,.027);b.label(ax["b"],"b")
+    align=pd.read_csv(ROOT/"results/cross_dataset_replication_rpe1/state_intervention/pairwise_geometry_alignment.csv");ident=align[(align.record_type=="summary")&(align.panel=="primary_common_strict_trans")].copy()
+    ident["display_label"]=ident.representation.replace({"ControlProfilePCA64":"Control PCA64"})
+    _forest(ax["b"],ident,"display_label","spearman_rho","ci_low","ci_high",[BASE,PRED,GEARS],["s","o","D"],"Grouped geometry, ρ","Source identifiability");ax["b"].set_xlim(0,.027);ax["b"].tick_params(axis="y",labelsize=6.0);b.label(ax["b"],"b")
     d=pd.read_csv(ROOT/"results/main_geometry_integrity_audit/artifact_safe_group_summary.csv");q=d[d.dataset=="K562_CRISPRi"].copy();q["label"]=q.model
     _forest(ax["c"],q,"label","response_distance_spearman","spearman_ci_low","spearman_ci_high",[PRED,BASE],["o","s"],"Grouped geometry, ρ","Matched architecture control");ax["c"].set_xlim(-.08,.08);b.label(ax["c"],"c")
-    anti=pd.read_csv(ROOT/"results/directedT_exploration/stage1b_anticollapse_results.csv");anti_summary=anti.groupby("architecture",as_index=False).agg(prediction_variance_ratio=("prediction_variance_ratio","mean"),perturbation_specific_corr=("perturbation_specific_corr","mean"));cols=[BASE,PRED,FAIL];marks=["s","o","^"]
-    for (_,z),c,mk in zip(anti_summary.iterrows(),cols,marks):ax["d"].scatter(z.prediction_variance_ratio,z.perturbation_specific_corr,color=c,marker=mk,s=30,label=z.architecture)
-    ax["d"].axhline(0,color=GRID,lw=.8);ax["d"].set_xscale("log");ax["d"].set_xlabel("Prediction variance ratio");ax["d"].set_ylabel("Perturbation-specific r");ax["d"].set_title("Anti-collapse control");ax["d"].legend(frameon=False,fontsize=5.5);b.clean(ax["d"]);b.label(ax["d"],"d")
-    stash("SupplementaryFigure5","a",pd.merge(pca,oracle,left_on="n_components",right_on="components",how="outer"));stash("SupplementaryFigure5","b",ident);stash("SupplementaryFigure5","c",q);stash("SupplementaryFigure5","d",anti_summary);save(fig,"SupplementaryFigure5")
+    anti=pd.read_csv(ROOT/"results/directedT_exploration/stage1b_anticollapse_results.csv");anti_summary=anti.groupby("architecture",as_index=False).agg(prediction_variance_ratio=("prediction_variance_ratio","mean"),perturbation_specific_corr=("perturbation_specific_corr","mean"));cols=[BASE,PRED,FAIL];marks=["s","o","^"];display_arch={"dual_route":"Dual route","hard":"Hard","vanilla":"Vanilla"}
+    for (_,z),c,mk in zip(anti_summary.iterrows(),cols,marks):ax["d"].scatter(z.prediction_variance_ratio,z.perturbation_specific_corr,color=c,marker=mk,s=30,label=display_arch.get(z.architecture,z.architecture))
+    ax["d"].axhline(0,color=GRID,lw=.8);ax["d"].set_xscale("log");ax["d"].set_xlabel("Prediction variance ratio");ax["d"].set_ylabel("Perturbation-specific r");ax["d"].set_title("Anti-collapse control",y=1.23);ax["d"].legend(frameon=False,fontsize=4.7,ncol=3,loc="lower center",bbox_to_anchor=(.5,1.01),columnspacing=.7,handletextpad=.35);b.clean(ax["d"]);b.label(ax["d"],"d")
+
+    natural_dir=natural_fluctuation_source_dir()
+    natural_e=pd.read_csv(natural_dir/"SupplementaryFigure5_panel_e.csv").sort_values("order")
+    natural_f=pd.read_csv(natural_dir/"SupplementaryFigure5_panel_f.csv").sort_values("order")
+    natural_g=pd.read_csv(natural_dir/"SupplementaryFigure5_panel_g.csv").sort_values("order")
+    natural_h=pd.read_csv(natural_dir/"SupplementaryFigure5_panel_h.csv").sort_values("order")
+
+    y=np.arange(len(natural_e))[::-1]
+    ecolors=[GEARS,PRED,PRED]; emarkers=["D","o","o"]
+    for yy,(_,z),color,marker in zip(y,natural_e.iterrows(),ecolors,emarkers):
+        ax["e"].errorbar(z.mean_cosine,yy,xerr=[[z.mean_cosine-z.ci_low],[z.ci_high-z.mean_cosine]],fmt=marker,color=color,capsize=2,ms=4.5,lw=1.15)
+        if yy==2: ax["e"].text(z.mean_cosine-.012,yy,f"{z.mean_cosine:.3f}",va="center",ha="right",fontsize=6.2,color=color)
+        else: ax["e"].text(z.ci_high+.007,yy,f"{z.mean_cosine:.3f}",va="center",fontsize=6.2,color=color)
+    ax["e"].axvline(0,color=GRID,lw=.8);ax["e"].set_yticks(y,["Full response r","Residual q","Residualized q"]);ax["e"].set_xlim(-.035,.245);ax["e"].set_xlabel("Mean cosine");ax["e"].set_title("Shared-state signal does not\nidentify residuals");b.clean(ax["e"]);b.label(ax["e"],"e")
+
+    y=np.arange(len(natural_f))[::-1]
+    for yy,(_,z),color,marker in zip(y,natural_f.iterrows(),[PRED,PRED,BASE],["o","o","s"]):
+        estimate=100*z.estimate_fraction; null=100*z.null_fraction
+        ax["f"].hlines(yy,min(estimate,null),max(estimate,null),color=GRID,lw=1.15)
+        ax["f"].scatter(null,yy,color="white",edgecolor=BASE,marker="o",s=21,lw=.8,zorder=2)
+        ax["f"].scatter(estimate,yy,color=color,marker=marker,s=25,zorder=3)
+        ax["f"].text(min(59,estimate+2),yy,f"{estimate:.1f}%",va="center",fontsize=6.2,color=color)
+    ax["f"].set_yticks(y,["Correct orientation","Sign agreement","Permutation p < 0.05"]);ax["f"].set_xlim(0,62);ax["f"].set_xlabel("Targets / agreement (%)");ax["f"].set_title("Target-specific orientation\nremains at null");b.clean(ax["f"]);b.label(ax["f"],"f")
+
+    oracle_rows=natural_g[natural_g.access=="Held-response oracle"].copy();gy=np.array([2,1]);gvals=100*oracle_rows.median_response_energy_fraction.to_numpy()
+    ax["g"].barh(gy,gvals,height=.42,color=[FAIL,PRED])
+    for yy,(_,z),value,color in zip(gy,oracle_rows.iterrows(),gvals,[FAIL,PRED]):
+        label=f"{value:.3g}% · sign+ {100*z.probability_alpha_positive:.1f}%"
+        if yy==2: ax["g"].text(value-.18,yy,label,va="center",ha="right",fontsize=5.6,color="white")
+        else: ax["g"].text(.32,yy,label,va="center",fontsize=5.6,color=PRED)
+    ax["g"].set_yticks(gy,["Raw covariance\noracle","Residualized\noracle"]);ax["g"].set_xlim(0,12.4);ax["g"].set_ylim(.25,2.5);ax["g"].set_xlabel("Median response energy (%)");ax["g"].set_title("Oracle overlap does not\ntransfer zero-shot")
+    zero_row=natural_g[natural_g.access=="Training-only global scalar"].iloc[0]
+    ax["g"].text(.20,.34,"Training-only\ncos 0.00003 · r 0.00069\nR²≈0",fontsize=4.7,va="bottom",color=TRUTH)
+    b.clean(ax["g"]);b.label(ax["g"],"g")
+
+    hy=np.array([3,2,1])
+    for yy,(_,z),color,marker in zip(hy,natural_h.iterrows(),[GEARS,PRED,BASE],["D","o","s"]):
+        ax["h"].errorbar(z.grouped_geometry_spearman,yy,xerr=[[z.grouped_geometry_spearman-z.ci_low],[z.ci_high-z.grouped_geometry_spearman]],fmt=marker,color=color,capsize=2,ms=4.5,lw=1.15)
+    ax["h"].axvline(0,color=GRID,lw=.8);ax["h"].set_yticks(hy,["EstablishedOBS71","Residualized\nfluct.","Target-perm.\nnull"]);ax["h"].set_xlim(-.005,.030);ax["h"].set_ylim(.25,3.5);ax["h"].set_xlabel("Grouped geometry, Spearman ρ");ax["h"].set_title("Natural fluctuation does not\nrestore IGC geometry");ax["h"].tick_params(axis="y",labelsize=6.0)
+    b.clean(ax["h"]);b.label(ax["h"],"h")
+
+    stash("SupplementaryFigure5","a",pd.merge(pca,oracle,left_on="n_components",right_on="components",how="outer"));stash("SupplementaryFigure5","b",ident);stash("SupplementaryFigure5","c",q);stash("SupplementaryFigure5","d",anti_summary);stash("SupplementaryFigure5","e",natural_e);stash("SupplementaryFigure5","f",natural_f);stash("SupplementaryFigure5","g",natural_g);stash("SupplementaryFigure5","h",natural_h);save(fig,"SupplementaryFigure5")
 
 
 def supplementary6():

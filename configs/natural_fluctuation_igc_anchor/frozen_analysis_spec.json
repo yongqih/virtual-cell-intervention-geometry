@@ -1,0 +1,83 @@
+{
+  "analysis": "Natural fluctuation direct response-space anchor for RPE1 IGC",
+  "calibration_source_rule": "frozen outer-train source list intersected with the 1,755 measured source genes for which a control-expression fluctuation vector exists; q remains centered by the original full frozen-train mean",
+  "created_at_before_outcome_computation": "2026-08-19T01:49:12.929995+00:00",
+  "dataset": "Replogle 2022 RPE1 CRISPRi",
+  "estimators": {
+    "raw_corr": "negative control-cell Pearson correlation",
+    "raw_cov": "negative control-cell sample covariance Cov(X_target, X_response)",
+    "resid_corr": "negative correlation after the same residualization",
+    "resid_cov": "negative covariance after joint OLS removal of library proxy and 20 global expression PCs",
+    "slope": "negative univariate response-on-target slope Cov/Var(target)"
+  },
+  "frozen_inputs": {
+    "dataset_manifest": "results\\cross_dataset_replication_rpe1\\dataset_manifest.json",
+    "established_obs71": "results\\cross_dataset_replication_rpe1\\cache\\control_state_representations.npz",
+    "preprocessing": "results\\cross_dataset_replication_rpe1\\preprocessing_config.json",
+    "processed_h5ad": "data\\raw\\replogle22rpe1_processed_complete.valid.h5ad",
+    "pseudobulk": "results\\cross_dataset_replication_rpe1\\cache\\rpe1_pseudobulk_full.npz",
+    "split": "results\\cross_dataset_replication_rpe1\\split_definition.json"
+  },
+  "geometry": {
+    "artifact_safe": "all pairwise metrics are computed separately within each held-out fold; no cross-fold pairs",
+    "bootstrap": "global perturbation-source multinomial weights reused across five within-fold groups",
+    "distance": "cosine distance",
+    "local_k": 10
+  },
+  "manuscript_or_existing_outputs_modified": false,
+  "optional_estimators": "SGS is deferred until primary and residualized results establish signal.",
+  "orientation": {
+    "metrics": [
+      "cosine",
+      "Pearson",
+      "Spearman",
+      "sign agreement among top 10% absolute truth coordinates",
+      "top 10% absolute and signed overlap"
+    ],
+    "nulls": [
+      "within-fold target permutation (200 draws; targetwise expected null and empirical p)",
+      "within-vector coordinate permutation",
+      "expression/detection matched source"
+    ]
+  },
+  "primary_truth": "frozen fold-reference-mean-centered intervention residual q",
+  "replicates": {
+    "geometry_bootstrap": 500,
+    "source_bootstrap": 2000,
+    "target_permutation": 200
+  },
+  "residualization": {
+    "cells": "control only",
+    "degrees_of_freedom_covariance_denominator": "n_cells - design_rank",
+    "library_proxy": "row sum of existing normalized/log-transformed expression matrix",
+    "n_components": 20,
+    "pca": "sklearn PCA, centered full 8749-gene normalized control expression, randomized solver",
+    "pca_seed": 1701,
+    "regression": "one joint OLS design [intercept, standardized library proxy, standardized PC1-PC20]"
+  },
+  "secondary_truth": "frozen global-control-relative response r",
+  "seeds": {
+    "base": 20260818,
+    "frozen_fold_seed": 1701,
+    "pca": 1701
+  },
+  "strict_trans_panel": "intersection of the five frozen fold-local strict-trans panels",
+  "verdict_gates": {
+    "conservative_rule": "Partial/strong support requires a residualized estimator; a signal confined to raw covariance is treated as state-confounded and does not support a natural anchor.",
+    "partial_anchor": {
+      "fraction_targetwise_empirical_p_lt_0_05_gt": 0.075,
+      "median_oracle_response_energy_fraction_gt": 0.001,
+      "residualized_orientation_mean_cosine_gt": 0.0,
+      "residualized_real_minus_target_permutation_bootstrap_ci_low_gt": 0.0
+    },
+    "strong_geometry_rescue": {
+      "between_source_variance_retention_gte": 0.25,
+      "entropy_effective_rank_retention_gte": 0.5,
+      "geometry_source_bootstrap_ci_low_gte": 0.1,
+      "geometry_spearman_mean_gte": 0.15,
+      "local_knn_overlap_k10_gte": 0.08,
+      "residualized_orientation_mean_cosine_gt": 0.0,
+      "residualized_real_minus_target_permutation_bootstrap_ci_low_gt": 0.0
+    }
+  }
+}
