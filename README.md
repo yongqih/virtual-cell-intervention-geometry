@@ -4,10 +4,10 @@ This repository contains the curated analysis and figure-reproduction code retai
 
 ## Verified archives
 
-- Code: [10.5281/zenodo.21998676](https://doi.org/10.5281/zenodo.21998676)
-- Matching source data: [10.5281/zenodo.21998614](https://doi.org/10.5281/zenodo.21998614)
+- Code: [10.5281/zenodo.22005122](https://doi.org/10.5281/zenodo.22005122)
+- Matching source data: [10.5281/zenodo.22005137](https://doi.org/10.5281/zenodo.22005137)
 
-These are the currently published, checksum-verified Zenodo records. The repository update adds the natural-fluctuation audit, its frozen configuration, the machine-checked panel-data builder and the revised Supplementary Figure 5a–h renderer. A new Zenodo version must be cited only after Zenodo publishes it and its checksum has been verified.
+These v1.1.0 Zenodo records accompany the natural-fluctuation audit, its frozen configuration, the machine-checked panel-data builder and the revised Supplementary Figure 5a–h renderer.
 
 ## Reproduce the established-model figures
 
