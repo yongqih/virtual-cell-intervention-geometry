@@ -152,7 +152,7 @@ def main():
     authorized = bool(best_delta["point"] >= gate["requires_mechanism_delta_at_least"] and best_delta["ci_low"] > gate["requires_ci_low_above"])
     pd.DataFrame([{"authorized": authorized, "executed": False, "candidate": best_name,
                    "geometry_delta": best_delta["point"], "ci_low": best_delta["ci_low"], "ci_high": best_delta["ci_high"],
-                   "reason": "No deployable diagnostic passed the frozen gate; no new model was built." if not authorized else "Gate met, but no remedy was executed in this diagnostic run."}]).to_csv(RESULT_ROOT / "optional_remedy_results.csv", index=False)
+                   "reason": 'No deployable diagnostic passed the fixed gate; no new model was built.' if not authorized else "Gate met, but no remedy was executed in this diagnostic run."}]).to_csv(RESULT_ROOT / "optional_remedy_results.csv", index=False)
 
     classification = {
         "verdict": "MARKOV_FORMULATION_NOT_SUPPORTED",
@@ -223,7 +223,7 @@ def main():
     h34, h45 = comparisons["history_after_A"]["R3_to_R4"], comparisons["history_after_A"]["R4_to_R5"]
     text = f"""MARKOV_FORMULATION_NOT_SUPPORTED
 
-# RENGE Markov Autopsy V2 — Final Verdict
+# RENGE Markov diagnostic analysis V2 — Final result classification
 
 Q1. Did the previous implemented chain actually treat source A only as initialization? **YES.** All inspected recursive chains supplied A only to predict the entry state; non-recursive models were classified `OTHER`.
 
@@ -256,7 +256,7 @@ Deployable grouped R5 geometry / residual geometry / between-source variance ret
 
 ## Optional remedy
 
-**No minimal new model was authorized or trained.** No deployable diagnostic met the frozen Δ≥0.05 and positive-CI gate.
+**No minimal new model was authorized or trained.** No deployable diagnostic met the fixed Δ≥0.05 and positive-CI gate.
 
 ## Manuscript interpretation
 
@@ -264,11 +264,11 @@ Deployable grouped R5 geometry / residual geometry / between-source variance ret
 
 ## Scope limitation
 
-These are population pseudobulk dynamics from destructive cross-sectional measurements, not longitudinal same-cell dynamics. A is the leakage-safe CorrectLag descriptor available for unseen sources, not a one-hot seen-source ceiling. Conclusions apply to the frozen low-capacity ridge/additive/rank-4 conditional family.
+These are population pseudobulk dynamics from destructive cross-sectional measurements, not longitudinal same-cell dynamics. A is the leakage-safe CorrectLag descriptor available for unseen sources, not a one-hot seen-source ceiling. Conclusions apply to the fixed low-capacity ridge/additive/rank-4 conditional family.
 """
     (RESULT_ROOT / "FINAL_VERDICT.md").write_text(text, encoding="utf-8")
-    (RESULT_ROOT / "README.md").write_text("# RENGE Markov Autopsy V2 results\n\nSee `FINAL_VERDICT.md`, `analysis_summary.json`, and `diagnostic_classification.json`. All CSV geometry is source-disjoint and calculated within held-out groups predicted by one fitted model.\n", encoding="utf-8")
-    print("[markov-v2] final classification, figures, and verdict complete")
+    (RESULT_ROOT / "README.md").write_text('# RENGE Markov diagnostic analysis V2 results\n\nSee `FINAL_VERDICT.md`, `analysis_summary.json`, and `diagnostic_classification.json`. All CSV geometry is source-disjoint and calculated within held-out groups predicted by one fitted model.\n', encoding="utf-8")
+    print('[markov-v2] final classification, figures, and result classification complete')
 
 
 if __name__ == "__main__":

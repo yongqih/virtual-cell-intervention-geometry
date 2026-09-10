@@ -179,7 +179,7 @@ def select_targets(config: dict[str, Any], eligible: dict[str, Any]) -> tuple[li
     rule = config["target_selection"]
     if len(eligible["fold0_shared"]) >= int(rule["minimum_fold0_shared_targets"]):
         targets = list(eligible["fold0_shared"])
-        reason = "existing RPE1 fold-0 targets met the frozen minimum"
+        reason = 'existing RPE1 fold-0 targets met the fixed minimum'
     else:
         rng = np.random.default_rng(int(rule["fallback_seed"]))
         order = rng.permutation(len(eligible["paired"]))
@@ -442,7 +442,7 @@ def smoke(config: dict[str, Any], data: dict[str, Any], eligible: dict[str, Any]
     if not passed:
         raise RuntimeError("Smoke gate failed")
     if projected > float(config["max_projected_runtime_seconds"]):
-        raise RuntimeError(f"Projected runtime {projected:.1f}s exceeds frozen limit")
+        raise RuntimeError(f"Projected runtime {projected:.1f}s exceeds fixed limit")
     return smoke_row
 
 
@@ -671,10 +671,10 @@ def report(
     lines = [
         "# FINAL FACTORIAL REPORT",
         "",
-        "## A. DATA / ELIGIBILITY AUDIT",
+        '## A. DATA / ELIGIBILITY analysis',
         "",
         f"- Shared eligible perturbations: **{audit['shared_intervention_count']}**",
-        f"- Frozen targets: **{len(design['targets'])}**; common strict-trans response genes: **{audit['shared_response_gene_count']}**",
+        f"- fixed targets: **{len(design['targets'])}**; common strict-trans response genes: **{audit['shared_response_gene_count']}**",
         f"- Source descriptor: `{audit['safe_source_descriptor']}`",
         f"- Ridge: direct multi-output affine regression, alpha={config['model']['alpha']}, training-only input scaling, no PCA.",
         f"- Leakage firewall: **{'PASS' if leakage.leakage_firewall_pass.all() else 'FAIL'}** across {len(leakage)} regime rows.",
@@ -716,7 +716,7 @@ def report(
         "",
         f"**{summary['component_verdicts']['anchor']}**",
         "",
-        "## G. OVERALL VERDICT",
+        '## G. OVERALL result classification',
         "",
         f"**{summary['overall_verdict']}**",
         "",
@@ -735,7 +735,7 @@ def report(
         "",
     ]
     if summary["external_replication_decision"] == "EXTERNAL_REPLICATION_JUSTIFIED":
-        lines.append("Short plan: in a separate preregistered task, use an existing Frangieh multi-context paired perturbation cache, freeze a common strict-trans response axis and held targets, and repeat the same direct Ridge zero-shot/aligned/shuffled comparison without implementing PerturbMap or tuning alpha.")
+        lines.append('Short plan: in a separate prespecified task, use an existing Frangieh multi-context paired perturbation cache, freeze a common strict-trans response axis and held targets, and repeat the same direct Ridge zero-shot/aligned/shuffled comparison without implementing PerturbMap or tuning alpha.')
         lines.append("")
     coverage_verdict = summary["component_verdicts"]["coverage"]
     anchor_verdict = summary["component_verdicts"]["anchor"]
@@ -779,7 +779,7 @@ def full_run(config: dict[str, Any], data: dict[str, Any], eligible: dict[str, A
     leakage = pd.DataFrame(leakage_rows)
     runtime = pd.DataFrame(runtime_rows)
     if len(results) != 180 or len(leakage) != 180 or not leakage.leakage_firewall_pass.all():
-        raise RuntimeError("Full grid or leakage audit is incomplete")
+        raise RuntimeError('Full grid or leakage analysis is incomplete')
     results.to_csv(OUT / "factorial_results.csv", index=False)
     leakage.to_csv(OUT / "leakage_audit.csv", index=False)
     previous_runtime = pd.read_csv(OUT / "runtime_audit.csv")
@@ -819,7 +819,7 @@ def main() -> None:
         raise SystemExit("STOP: large-model training would be required")
     if audit["shared_intervention_count"] < 40 or audit["shared_response_gene_count"] < 200:
         raise SystemExit("STOP: paired K562/RPE1 data are insufficient")
-    print(f"AUDIT shared={audit['shared_intervention_count']} genes={audit['shared_response_gene_count']} large_model=NO")
+    print(f"analysis shared={audit['shared_intervention_count']} genes={audit['shared_response_gene_count']} large_model=NO")
     if args.mode == "audit":
         return
     design = prepare_design(config, data, eligible)

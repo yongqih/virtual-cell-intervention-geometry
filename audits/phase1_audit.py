@@ -553,7 +553,7 @@ def main() -> None:
     ]
     pd.DataFrame(coverage_records).to_csv(OUT / "graph_coverage.csv", index=False)
     if len(eligible) == 0:
-        raise RuntimeError("No eligible perturbations under preregistered thresholds")
+        raise RuntimeError('No eligible perturbations under prespecified thresholds')
 
     log(f"Aggregating trans-response pseudobulks for {len(eligible)} eligible perturbations")
     obs_labels = adata.obs["perturbation"].astype(str).to_numpy()
@@ -589,7 +589,7 @@ def main() -> None:
     )
     metadata.to_csv(OUT / "perturbation_metadata.csv", index=False)
 
-    log("Constructing frozen topology representations and trans-only pairwise response metrics")
+    log('Constructing fixed topology representations and trans-only pairwise response metrics')
     features, similarities = topology_matrices(frozen, eligible, shared_genes)
     pairwise, response_matrices = build_response_similarities(delta, eligible, shared_genes)
     tri = np.triu_indices(len(eligible), 1)
@@ -646,7 +646,7 @@ def main() -> None:
             }
         )
 
-    log("Running perturbation-level Gate A bootstrap")
+    log('Running perturbation-level Topology association bootstrap')
     bootstrap = bootstrap_gene_associations(
         similarities,
         response_matrices["pearson"],
@@ -664,7 +664,7 @@ def main() -> None:
         boot_summary, how="left", left_on="topology", right_index=True
     )
 
-    log("Running degree and response-strength confound audits")
+    log('Running degree and response-strength confound analyses')
     pair_i, pair_j = tri
     degrees_out = metadata.outgoing_degree.to_numpy(float)
     degrees_in = metadata.incoming_degree.to_numpy(float)
@@ -790,7 +790,7 @@ def main() -> None:
         and np.mean(boot_pivot.outgoing_signed > boot_pivot.incoming_signed) > 0.5
     )
 
-    # Gate A figures are generated before any Gate B decision.
+    # Topology association figures are generated before any Transfer prediction decision.
     plt.style.use("seaborn-v0_8-whitegrid")
     fig, ax = plt.subplots(figsize=(7.2, 5.2))
     x = pairwise["topology_outgoing_signed"].to_numpy(float)
@@ -816,7 +816,7 @@ def main() -> None:
     ax.axhspan(np.percentile(shuffle_null.spearman_rho, 2.5), np.percentile(shuffle_null.spearman_rho, 97.5), color="gray", alpha=0.2, label="Shuffled 95% interval")
     ax.set_xticks(positions, [x.replace("_", "\n") for x in plot_names])
     ax.set_ylabel("Pairwise Spearman association")
-    ax.set_title("Gate A topology effect sizes")
+    ax.set_title('Topology association topology effect sizes')
     ax.legend(frameon=True)
     fig.tight_layout()
     fig.savefig(OUT / "plot2_gateA_effect_sizes.png", dpi=220)
@@ -826,7 +826,7 @@ def main() -> None:
     ax.hist(shuffle_null.spearman_rho, bins=20, color="#bdbdbd", edgecolor="white")
     ax.axvline(observed["outgoing_signed"], color="#2166ac", lw=2.5, label="Correct signed outgoing")
     ax.axvline(shuffle_p95, color="#d62728", ls="--", label="Shuffled 95th percentile")
-    ax.set(xlabel="Gate A Spearman association", ylabel="Shuffled networks", title="Correct graph versus degree-preserving null")
+    ax.set(xlabel='Topology association Spearman association', ylabel="Shuffled networks", title="Correct graph versus degree-preserving null")
     ax.legend(frameon=True)
     fig.tight_layout()
     fig.savefig(OUT / "plot4_correct_vs_shuffled_null.png", dpi=220)
@@ -838,7 +838,7 @@ def main() -> None:
     axes[0].set(xlabel="Usable outgoing degree", ylabel="Eligible perturbations", title=f"Eligible n={len(eligible)}")
     axes[0].legend(frameon=True)
     cov_vals = [len(total_perts), sum(x in graph_nodes for x in total_perts), len(eligible)]
-    axes[1].bar(["All single", "Graph node", "Final audit"], cov_vals, color=["#bdbdbd", "#80b1d3", "#4daf4a"])
+    axes[1].bar(["All single", "Graph node", 'Final analysis'], cov_vals, color=["#bdbdbd", "#80b1d3", "#4daf4a"])
     axes[1].set(ylabel="Perturbations", title="Graph coverage funnel")
     fig.tight_layout()
     fig.savefig(OUT / "plot5_graph_coverage_degree.png", dpi=220)
@@ -853,24 +853,24 @@ def main() -> None:
     gate_b_ran = False
 
     if not gate_a_pass:
-        log("Gate A failed the frozen minimum rule; stopping before Gate B")
+        log('Topology association failed the fixed minimum rule; stopping before Transfer prediction')
         pd.DataFrame(
             columns=["topology", "fold", "perturbation", "pearson", "spearman", "mse", "cosine", "top10_abs_recall", "skip_reason"]
-        ).assign(skip_reason="Gate A failed; Gate B not run per protocol").to_csv(OUT / "gateB_per_perturbation.csv", index=False)
+        ).assign(skip_reason='Topology association failed; Transfer prediction not run per protocol').to_csv(OUT / "gateB_per_perturbation.csv", index=False)
         pd.DataFrame(columns=["topology", "fold", "fisher_z_mean", "mse_mean", "skip_reason"]).assign(
-            skip_reason="Gate A failed; Gate B not run per protocol"
+            skip_reason='Topology association failed; Transfer prediction not run per protocol'
         ).to_csv(OUT / "gateB_per_fold.csv", index=False)
-        pd.DataFrame([{"status": "NOT_RUN", "reason": "Gate A failed; Gate B not run per protocol"}]).to_csv(
+        pd.DataFrame([{"status": "NOT_RUN", "reason": 'Topology association failed; Transfer prediction not run per protocol'}]).to_csv(
             OUT / "gateB_summary.csv", index=False
         )
         pd.DataFrame(columns=["shuffle", "fold", "fisher_z_mean", "mse_mean", "top10_abs_recall_mean", "skip_reason"]).assign(
-            skip_reason="Gate A failed; Gate B not run per protocol"
+            skip_reason='Topology association failed; Transfer prediction not run per protocol'
         ).to_csv(OUT / "gateB_shuffle_null.csv", index=False)
-        save_placeholder(OUT / "plot3_prototype_transfer.png", "Gate B not run", "Gate A failed the frozen minimum support rule; the protocol requires stopping before transfer testing.")
-        save_placeholder(OUT / "plot6_per_perturbation_prototype.png", "Per-perturbation transfer not available", "No prototype predictions were computed after the Gate A stop decision.")
+        save_placeholder(OUT / "plot3_prototype_transfer.png", 'Transfer prediction not run', 'Topology association failed the fixed minimum support rule; the protocol requires stopping before transfer testing.')
+        save_placeholder(OUT / "plot6_per_perturbation_prototype.png", "Per-perturbation transfer not available", 'No prototype predictions were computed after the Topology association stop decision.')
     else:
         gate_b_ran = True
-        log("Gate A passed; running fixed five-fold non-neural prototype transfer")
+        log('Topology association passed; running fixed five-fold non-neural prototype transfer')
         prototype_names = ["outgoing_signed", "outgoing_unsigned", "incoming_signed", "reversed_signed"]
         per_pert = evaluate_prototypes(delta, eligible, shared_genes, similarities, folds, config["gate_b"]["k_neighbors"], prototype_names)
         per_pert.to_csv(OUT / "gateB_per_perturbation.csv", index=False)
@@ -969,11 +969,11 @@ def main() -> None:
         fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
         axes[0].hist(shuffle_null.spearman_rho, bins=20, color="#bdbdbd", edgecolor="white")
         axes[0].axvline(observed["outgoing_signed"], color="#2166ac", lw=2.5)
-        axes[0].set(xlabel="Gate A Spearman", ylabel="Shuffled networks", title="Gate A null")
+        axes[0].set(xlabel='Topology association Spearman', ylabel="Shuffled networks", title='Topology association null')
         axes[1].hist(shuffle_overall.fisher_z_mean, bins=20, color="#bdbdbd", edgecolor="white")
         correct_z = float(gate_b_summary.set_index("topology").loc[chosen_outgoing, "fisher_z_mean"])
         axes[1].axvline(correct_z, color="#2166ac", lw=2.5)
-        axes[1].set(xlabel="Gate B Fisher-z mean", ylabel="Shuffled networks", title="Gate B null")
+        axes[1].set(xlabel='Transfer prediction Fisher-z mean', ylabel="Shuffled networks", title='Transfer prediction null')
         fig.tight_layout()
         fig.savefig(OUT / "plot4_correct_vs_shuffled_null.png", dpi=220)
         plt.close(fig)
@@ -1009,9 +1009,9 @@ def main() -> None:
         )
 
     gate_b_sentence = (
-        f"Gate B {'passed' if gate_b_pass else 'failed'}: {chosen_outgoing} beat the fold-specific shuffled median in {fold_wins}/5 folds."
+        f"Transfer prediction {'passed' if gate_b_pass else 'failed'}: {chosen_outgoing} beat the fold-specific shuffled median in {fold_wins}/5 folds."
         if gate_b_ran
-        else "Gate B was not run because Gate A failed the frozen minimum support rule."
+        else 'Transfer prediction was not run because Topology association failed the fixed minimum support rule.'
     )
     verdict_text = f"""{verdict}
 
@@ -1019,40 +1019,40 @@ def main() -> None:
 
 - Replogle et al. K562 CRISPRi Perturb-seq (processed scPertEval build): {int(sum(cell_counts)):,} cells, {len(total_perts):,} single-gene perturbation labels, {int(cell_counts.get('control', 0)):,} controls, and {len(measured_genes):,} measured genes.
 - The fixed response/network intersection contained {len(shared_genes):,} genes.
-- {len(eligible)} perturbations met both frozen criteria (at least 50 cells and at least 5 usable outgoing signed edges). This is below 100 and is a prominent coverage limitation.
+- {len(eligible)} perturbations met both fixed criteria (at least 50 cells and at least 5 usable outgoing signed edges). This is below 100 and is a prominent coverage limitation.
 
 ## External graph and coverage
 
-- Frozen external graph: OmniPath core plus CollecTRI, downloaded 2026-08-10, with {network_stats['nodes']:,} nodes and {network_stats['edges']:,} directed signed edges after dropping {network_stats['sign_conflict_pairs_dropped']:,} sign-conflict pairs.
+- fixed external graph: OmniPath core plus CollecTRI, downloaded 2026-08-10, with {network_stats['nodes']:,} nodes and {network_stats['edges']:,} directed signed edges after dropping {network_stats['sign_conflict_pairs_dropped']:,} sign-conflict pairs.
 - Positive-edge fraction: {network_stats['fraction_positive']:.3f}; negative-edge fraction: {network_stats['fraction_negative']:.3f}.
 
-## Gate A
+## Topology association
 
 - Signed outgoing topology-response Spearman association: {observed['outgoing_signed']:.4f}.
 - Degree-preserving shuffled null median: {float(shuffle_null.spearman_rho.median()):.4f}; 95th percentile: {shuffle_p95:.4f}.
 - Bootstrap 95% interval for signed outgoing: [{float(primary_gate_a.bootstrap_ci_low):.4f}, {float(primary_gate_a.bootstrap_ci_high):.4f}].
-- Gate A {'PASSED' if gate_a_pass else 'FAILED'} the frozen minimum rule.
+- Topology association {'PASSED' if gate_a_pass else 'FAILED'} the fixed minimum rule.
 
 ## Sign and direction comparisons
 
 - Signed outgoing: {observed['outgoing_signed']:.4f}; unsigned outgoing: {observed['outgoing_unsigned']:.4f}. Sign claim: {'SUPPORTED' if sign_support else 'NOT SUPPORTED'}.
 - Incoming signed: {observed['incoming_signed']:.4f}; reversed signed: {observed['reversed_signed']:.4f}. Direction claim: {'SUPPORTED' if direction_support else 'NOT SUPPORTED'}.
-- Incoming and reversed are algebraically identical under the preregistered one-step representation, so their equality is expected rather than independent replication.
+- Incoming and reversed are algebraically identical under the prespecified one-step representation, so their equality is expected rather than independent replication.
 
-## Gate B and fold consistency
+## Transfer prediction and fold consistency
 
 - {gate_b_sentence}
 
 ## Major caveats
 
-- Only {len(eligible)} perturbations were eligible, below the preregistered warning level of 100.
-- The processed public file retains target-gene labels but not guide identifiers, so guide-level concordance could not be audited.
+- Only {len(eligible)} perturbations were eligible, below the prespecified warning level of 100.
+- The processed public file retains target-gene labels but not guide identifiers, so guide-level concordance could not be evaluated.
 - The graph is activation-skewed and context-agnostic; external curation does not guarantee K562 activity.
 - Pseudobulk deltas use the provided normalized log1p expression and a shared global control mean; batch covariates are unavailable in the trimmed file.
 
 ## Phase II decision
 
-{'Phase II Transformer ablation is scientifically justified by the frozen Phase I gates, but must not begin without explicit instruction.' if verdict == 'PHASE1_REAL_DIRECTIONAL_SIGNAL_SUPPORTED' else 'Phase II Transformer testing is not scientifically justified by this Phase I result.'}
+{'Both the topology-association and transfer-prediction criteria were met in this analysis.' if verdict == 'PHASE1_REAL_DIRECTIONAL_SIGNAL_SUPPORTED' else 'This analysis did not meet both the topology-association and transfer-prediction criteria.'}
 """
     (OUT / "PHASE1_VERDICT.md").write_text(verdict_text, encoding="utf-8")
     log(f"Completed: {verdict}")

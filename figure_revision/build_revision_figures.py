@@ -1,8 +1,4 @@
-"""Build the retained Figure 4/5 and Supplementary Figure 7-10 components.
-
-All quantitative values are read from frozen, publication-grade CSV artifacts.
-This script performs no fitting, tuning, resampling, or experiment replay.
-"""
+'Build the retained Figure 4/5 and Supplementary Figure 7-10 components.\n\nAll quantitative values are read from fixed, publication-grade CSV artifacts.\nThis script performs no fitting, tuning, resampling, or experiment replay.\n'
 from __future__ import annotations
 
 import csv
@@ -237,7 +233,7 @@ def plot_dumbbell(ax, left, right, left_label, right_label, xlabel, title, panel
 def plot_early_assay(ax, panel_letter="c") -> None:
     ax.set_axis_off(); ax.set_xlim(0,1); ax.set_ylim(0,1)
     steps=[("learn P1/P2 axes",.25,.65),("exclude held target",.75,.65),
-           ("measure Day 2/3/4",.25,.38),("project on frozen axes",.75,.38)]
+           ("measure Day 2/3/4",.25,.38),('project on fixed axes',.75,.38)]
     ax.annotate("",(.66,.65),(.34,.65),arrowprops=dict(arrowstyle="->",lw=.8,color=C["baseline"]))
     ax.annotate("",(.25,.46),(.25,.56),arrowprops=dict(arrowstyle="->",lw=.8,color=C["baseline"]))
     ax.annotate("",(.66,.38),(.34,.38),arrowprops=dict(arrowstyle="->",lw=.8,color=C["baseline"]))
@@ -435,7 +431,7 @@ def plot_rollout_autopsy(ax, data, panel_letter="d"):
         ax.annotate(row.label,(row.between_variance_ratio,row.response_distance_rho),xytext=(dx,dy),
                     textcoords="offset points",fontsize=5.2,ha=ha,va=va)
     ax.set_xlabel("Variance ratio"); ax.set_ylabel("Grouped geometry")
-    ax.set_title("Rollout compression autopsy"); ax.margins(x=.10,y=.14); clean(ax)
+    ax.set_title('Rollout geometry and variance'); ax.margins(x=.10,y=.14); clean(ax)
     if panel_letter: letter(ax,panel_letter)
 
 

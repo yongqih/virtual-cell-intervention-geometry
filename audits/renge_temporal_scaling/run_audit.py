@@ -70,7 +70,7 @@ def main():
   surface[surface.temporal_order.isin(["EndpointOnly","CorrectTemporal"])].to_csv(RESULT_ROOT/"temporal_depth_scaling.csv",index=False)
   pd.DataFrame(controls).to_csv(RESULT_ROOT/"temporal_order_controls.csv",index=False);pd.DataFrame(measure_controls).to_csv(RESULT_ROOT/"endpoint_measurement_controls.csv",index=False);pd.DataFrame(oracle_rows).to_csv(RESULT_ROOT/"oracle_temporal_value.csv",index=False)
 
-  # Measurement-power audit: bootstrap pseudobulks at fixed caps, then frozen CorrectLag wave chain.
+  # Measurement-power analysis: bootstrap pseudobulks at fixed caps, then fixed CorrectLag wave chain.
   power=[];noise_rows=[];twofold=grouped_twofold_splits(len(sources),config["measurement_outer_repeats"],config["outer_split_seed"])
   for cap_index,cap in enumerate(config["measurement_cell_caps"]):
     for rep in range(config["measurement_bootstrap_repeats"]):

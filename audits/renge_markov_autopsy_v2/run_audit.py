@@ -23,7 +23,7 @@ def previous_audit():
    "overall_answer":"MIXED","recursive_chain_answer":"YES_INITIALIZATION_ONLY",
    "models":[
     {"model":"CorrectLag dynamic-validity wave chain","classification":"INITIALIZATION_ONLY","file":"scripts/renge_dynamic_validity/run_diagnostics.py","evidence_lines":[217,221],"source_entry":"CorrectLag predicts W23","later_transition_signature":"propagate(state)=apply_affine(transition,state)","source_passed_after_initialization":False},
-    {"model":"Endpoint benchmark frozen wave chain","classification":"INITIALIZATION_ONLY","file":"scripts/renge_endpoint_benchmark/run_audit.py","evidence_lines":[72,77],"source_entry":"CorrectLag predicts W23/R2","later_transition_signature":"apply_affine(transition,w23); apply_affine(transition,w34)","source_passed_after_initialization":False},
+    {"model":'Endpoint benchmark fixed wave chain',"classification":"INITIALIZATION_ONLY","file":"scripts/renge_endpoint_benchmark/run_audit.py","evidence_lines":[72,77],"source_entry":"CorrectLag predicts W23/R2","later_transition_signature":"apply_affine(transition,w23); apply_affine(transition,w34)","source_passed_after_initialization":False},
     {"model":"State-vs-wave absolute state chain","classification":"INITIALIZATION_ONLY","file":"scripts/renge_state_vs_wave/run_audit.py","evidence_lines":[146,149],"source_entry":"CorrectLag predicts R2","later_transition_signature":"state_rollout(state_model,pred_r2,3)","source_passed_after_initialization":False},
     {"model":"Temporal-scaling descriptor-to-R5","classification":"OTHER","file":"scripts/renge_temporal_scaling/run_audit.py","evidence_lines":[51],"source_entry":"temporal descriptor directly predicts R5","later_transition_signature":"non-recursive","source_passed_after_initialization":None},
     {"model":"Temporal-scaling measurement-power wave chain","classification":"INITIALIZATION_ONLY","file":"scripts/renge_temporal_scaling/run_audit.py","evidence_lines":[83],"source_entry":"CorrectLag predicts W23/R2","later_transition_signature":"apply_affine transition without A","source_passed_after_initialization":False}],
@@ -116,10 +116,10 @@ def main():
     for name,pred in traj_models.items():
       rr=generic_row(split,name,"oracle_trajectory", "R5",pred,states[test,3],sources,genes,k,residual_reference=states[train,3].mean(0));trajectory.append(rr)
       if name in ("WholeTrajectory","TrajectoryPCA8"):compression.append(rr|{"formulation":name})
-    # Deployable history-conditioned geometry autopsy.
+    # Deployable history-conditioned geometry diagnostic analysis.
     pred_r3=apply(fit_ridge(A[train],states[train,1],alpha),A[test]);h4=apply(fit_ridge(np.concatenate([states[train,0],states[train,1],A[train]],1),states[train,2],alpha),np.concatenate([pred_r2,pred_r3,A[test]],1));h5=apply(fit_ridge(np.concatenate([states[train,1],states[train,2],A[train]],1),states[train,3],alpha),np.concatenate([pred_r3,h4,A[test]],1));rr=generic_row(split,"HistoryConditioned","deployable","R5",h5,states[test,3],sources,genes,k,residual_reference=states[train,3].mean(0));compression.append(rr|{"formulation":"HistoryConditioned"})
     atomic_npz(CACHE_ROOT/f"split_{si:03d}.npz",test=test,direct=direct_r5,impulse=deploy_pred["Impulse"],additive=deploy_pred["PersistentAdditive"],conditional=deploy_pred["PersistentConditional"],history=h5)
-    if (si+1)%10==0:print(f"[markov-v2] grouped autopsy {si+1}/{len(splits)}",flush=True)
+    if (si+1)%10==0:print(f"[markov-v2] grouped diagnostic analysis {si+1}/{len(splits)}",flush=True)
 
   # Population snapshot diagnostics and transition-error association.
   error=pd.DataFrame(source_errors).groupby(["source","transition"])[["transition_mse","transition_pearson"]].mean().reset_index();pop=[]

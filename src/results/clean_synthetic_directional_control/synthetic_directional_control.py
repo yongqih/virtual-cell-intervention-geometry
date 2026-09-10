@@ -358,7 +358,7 @@ From this directory, run:
 python synthetic_directional_control.py
 ```
 
-The script recreates all five worlds, graph controls, response arrays, checkpoints, predictions, metrics, figures, reports, and the SHA-256 artifact manifest from the frozen JSON/Markdown configuration files.
+The script recreates all five worlds, graph controls, response arrays, checkpoints, predictions, metrics, figures, reports, and the SHA-256 artifact manifest from the fixed JSON/Markdown configuration files.
 
 ## Interpretation boundary
 
@@ -550,7 +550,7 @@ def main():
                    "pc1_variance_fraction", "pcs_80", "top5_variance_fraction", "truth_effective_rank",
                    "truth_pc1_variance_fraction", "truth_pcs_80", "truth_top5_variance_fraction"]].to_csv(OUT / "variance_rank_audit.csv", index=False)
     metrics_frame[["world", "generator_seed", "condition", "swap_distance_correlation"]].to_csv(OUT / "swap_audit.csv", index=False)
-    pd.DataFrame([{"status": "NOT_RUN", "reason": "Optional mismatch curve omitted to keep the preregistered primary control lightweight and frozen."}]).to_csv(OUT / "optional_graph_mismatch.csv", index=False)
+    pd.DataFrame([{"status": "NOT_RUN", "reason": 'Optional mismatch curve omitted to keep the prespecified primary control lightweight and fixed.'}]).to_csv(OUT / "optional_graph_mismatch.csv", index=False)
 
     forbidden = json.loads((OUT / "oracle_information_boundary.json").read_text(encoding="utf-8"))
     leakage = any(forbidden[k] for k in ["graph_uses_validation_response_values", "graph_uses_validation_response_ranking",
@@ -594,7 +594,7 @@ def main():
     recommendation = "MAIN_TEXT_SMALL_PANEL" if verdict == "SYNTHETIC_DIRECTIONAL_STRUCTURE_CAPACITY_SUPPORTED" else "SUPPLEMENT_ONLY" if verdict == "SYNTHETIC_STRUCTURE_PARTIALLY_SUPPORTED" else "REMOVE"
     report = f"""{verdict}
 
-# Final clean synthetic directional capacity verdict
+# Final clean synthetic directional capacity result classification
 
 {chr(10).join(lines)}
 
@@ -608,7 +608,7 @@ def main():
 6. Is the result consistent across independent synthetic worlds? **{'YES' if verdict == 'SYNTHETIC_DIRECTIONAL_STRUCTURE_CAPACITY_SUPPORTED' else 'PARTIAL' if verdict == 'SYNTHETIC_STRUCTURE_PARTIALLY_SUPPORTED' else 'NO'}**.
 7. Is there any held-out-response leakage? **{'YES' if leakage else 'NO'}**.
 8. Is this properly interpreted as a matched-generator capacity control? **YES**.
-9. Manuscript placement: **{recommendation}**.
+
 
 ## Matched-generator disclosure
 
@@ -621,14 +621,14 @@ No real K562 response, real-data replication, or sealed real test was opened. Se
     (OUT / "FINAL_SYNTHETIC_CAPACITY_VERDICT.md").write_text(report, encoding="utf-8")
     log = f"""# Research log
 
-- Frozen plan and JSON configs were written before generation/training.
+- fixed plan and JSON configs were written before generation/training.
 - Five generator seeds: {GENERATOR_SEEDS}.
 - Six graph conditions generated before training in each world.
 - Model seeds matched within world: {[9000 + x for x in range(1, 6)]}.
 - Fixed 250 epochs; no early stopping or condition-specific tuning.
-- Graph passed exact degree/sign-count audits in every world: {bool(pd.DataFrame(graph_audit)[['degree_shuffle_in_degree_exact','degree_shuffle_out_degree_exact','sign_counts_preserved']].all().all())}.
+- Graph passed exact degree/sign-count analyses in every world: {bool(pd.DataFrame(graph_audit)[['degree_shuffle_in_degree_exact','degree_shuffle_out_degree_exact','sign_counts_preserved']].all().all())}.
 - Held-out response leakage: {leakage}.
-- Verdict: `{verdict}`.
+- result classification: `{verdict}`.
 - Sealed real-test open count: 0.
 """
     (OUT / "RESEARCH_LOG.md").write_text(log, encoding="utf-8")

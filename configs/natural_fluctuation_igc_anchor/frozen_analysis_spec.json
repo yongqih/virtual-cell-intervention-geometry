@@ -1,6 +1,6 @@
 {
   "analysis": "Natural fluctuation direct response-space anchor for RPE1 IGC",
-  "calibration_source_rule": "frozen outer-train source list intersected with the 1,755 measured source genes for which a control-expression fluctuation vector exists; q remains centered by the original full frozen-train mean",
+  "calibration_source_rule": "fixed outer-train source list intersected with the 1,755 measured source genes for which a control-expression fluctuation vector exists; q remains centered by the original full fixed-train mean",
   "created_at_before_outcome_computation": "2026-08-19T01:49:12.929995+00:00",
   "dataset": "Replogle 2022 RPE1 CRISPRi",
   "estimators": {
@@ -40,7 +40,7 @@
       "expression/detection matched source"
     ]
   },
-  "primary_truth": "frozen fold-reference-mean-centered intervention residual q",
+  "primary_truth": "fixed fold-reference-mean-centered intervention residual q",
   "replicates": {
     "geometry_bootstrap": 500,
     "source_bootstrap": 2000,
@@ -55,13 +55,13 @@
     "pca_seed": 1701,
     "regression": "one joint OLS design [intercept, standardized library proxy, standardized PC1-PC20]"
   },
-  "secondary_truth": "frozen global-control-relative response r",
+  "secondary_truth": "fixed global-control-relative response r",
   "seeds": {
     "base": 20260818,
     "frozen_fold_seed": 1701,
     "pca": 1701
   },
-  "strict_trans_panel": "intersection of the five frozen fold-local strict-trans panels",
+  "strict_trans_panel": "intersection of the five fixed fold-local strict-trans panels",
   "verdict_gates": {
     "conservative_rule": "Partial/strong support requires a residualized estimator; a signal confined to raw covariance is treated as state-confounded and does not support a natural anchor.",
     "partial_anchor": {

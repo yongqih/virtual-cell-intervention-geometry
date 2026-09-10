@@ -104,7 +104,7 @@ def main() -> None:
         [{
             "status": "NOT_RUN_GATE_STOP",
             "stage": "K_noise_dose_rollout_and_L_gpu_propagator",
-            "reason": "Best conditional credit head did not improve marginal lag by the preregistered +0.03 geometry threshold.",
+            "reason": 'Best conditional credit head did not improve marginal lag by the prespecified +0.03 geometry threshold.',
             "best_credit_head": "DenseRidgeCredit",
             "best_credit_minus_marginal_geometry_rho": -0.0038765471675919483,
             "frozen_threshold": 0.03,
@@ -129,7 +129,7 @@ def main() -> None:
     values = [reliability.loc[reliability["matrix"] == matrix, "geometry_reliability_rho"] for matrix in matrix_order]
     plt.figure(figsize=(6, 4))
     plt.boxplot(values, tick_labels=matrix_order, showfliers=False)
-    plt.axhline(.1, color="#E45756", linestyle="--", linewidth=1, label="frozen gate")
+    plt.axhline(.1, color="#E45756", linestyle="--", linewidth=1, label='fixed gate')
     plt.ylabel("Pseudoreplicate geometry reliability ρ")
     plt.title("Wave reliability across 50 cell splits")
     plt.legend(frameon=False)
@@ -173,56 +173,14 @@ def main() -> None:
     colors = ["#54A24B" if name == "MarginalLag" else "#B9B9B9" for name in credit_means.index]
     plt.bar(credit_means.index, credit_means.values, color=colors)
     plt.ylabel("Grouped held-out geometry ρ")
-    plt.title("Conditional credit heads do not clear the frozen gate")
+    plt.title('Conditional credit heads do not clear the fixed gate')
     plt.xticks(rotation=30, ha="right")
     save_figure(figure_root / "06_credit_head_gate.png")
 
-    verdict = """PROPAGATION_PRINCIPLE_PARTIALLY_SUPPORTED
-
-## Decision
-
-The independent RENGE reproduction supports a narrow perturbation-wave principle: other perturbations' correctly ordered intermediate responses contain transferable information about the first population response of a completely unseen perturbation source. It does **not** support an end-to-end learned wave propagator that preserves held-out response geometry through free rollout.
-
-The primary endpoint is the within-held-out-group, pair-specific strict-trans cosine-distance Spearman correlation. Each of 50 repeated two-fold source-disjoint splits holds the source out at every day, and every group is predicted by one fitted model. A synthetic audit showed why concatenated leave-one-source-out geometry is invalid: a no-source mean predictor scored 1.000 naively but 0.000 under the grouped metric.
-
-## Six preregistered claims
-
-| # | Claim | Score | Evidence |
-|---|---|---|---|
-| 1 | Intermediate behavior predicts the unseen source's first response | **PASS** | Correct lag ρ=0.1721 versus static 0.0556; source-bootstrap delta 0.1165, 95% CI [0.0506, 0.1540]. Held-out source absent at Days 2–5. |
-| 2 | Correct temporal order matters beyond same-wave/shuffled controls | **PASS** | Correct−same-wave delta 0.0459, CI [0.0222, 0.0623]; correct−temporal-shuffle 0.0576, CI [0.0260, 0.0823]. |
-| 3 | Signal grows with intermediate-evidence dose | **PASS** | Mean ρ: 0%,25%,50%,75%,100% = 0.0000, 0.0743, 0.1176, 0.1375, 0.1721; dose-rank ρ=1.0; 100%−0% CI [0.1436, 0.2003]. |
-| 4 | Conditional credit assignment improves the marginal propagator | **FAIL** | Best credit head 0.1682 versus marginal 0.1721 (delta −0.0039), below the frozen +0.03 gate. |
-| 5 | A learned propagator preserves geometry in free rollout | **FAIL** | Dense teacher-forced W34→W45 ρ=0.4284, but full free W23→W45 ρ=0.0427. The dominant problem is first-wave inference/exposure, not merely one-step transition capacity. |
-| 6 | A final dynamic propagated endpoint model improves over direct/static baselines | **FAIL** | Not demonstrated: no candidate passed the credit gate, so GPU attention and endpoint benchmarking were not authorized. |
-
-## Supporting and limiting observations
-
-- Wave pseudoreplicate median reliabilities were 0.691 (W23), 0.570 (W34), and 0.558 (W45), so the basic wave geometry is measurable.
-- Oracle temporal prediction supports predictive dependence, not causality or true zero-shot inference: immediate-wave ρ was 0.374 for W23→W34 and 0.415 for W34→W45.
-- The dense transition operator worked better than the low-rank operator. The tested low-rank parameterization did not consistently beat identity/same-wave/shuffled controls.
-- Orthogonal Procrustes alignment preserved Euclidean geometry numerically but did not restore held-out response-distance geometry (ρ≈0.001).
-- Leave-one-source influence analysis retained a positive correct-lag minus static gap for every omitted source (minimum 0.0755), arguing against a single-source artifact.
-- These are population pseudobulk response waves, not within-cell trajectories. The result is predictive and mechanistic in ordering/control structure, but not proof of causal molecular transmission.
-
-## Stop decision
-
-The frozen conditional-credit gate stopped Parts K–L. `noise_dose_rollout.csv` records `NOT_RUN_GATE_STOP`; no GPU model was launched and no GEARS monitoring was performed, as GEARS had already completed.
-
-## Data and provenance
-
-- Dataset: GEO [GSE213069](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE213069), 14,945 cells, 103 modeled genes, 23 KO sources, Days 2–5.
-- Paper: Ishikawa et al., *Communications Biology* (2023), [DOI 10.1038/s42003-023-05594-4](https://doi.org/10.1038/s42003-023-05594-4).
-- Official code/data example: [masastat/RENGE](https://github.com/masastat/RENGE) pinned at `ca0d636ae47311fb5ce501f4a0a835b55379d9fa`; input SHA-256 values are recorded in `data_provenance.json`.
-"""
+    verdict = "PROPAGATION_PRINCIPLE_PARTIALLY_SUPPORTED\n\n## Decision\n\nThe independent RENGE reproduction supports a narrow perturbation-wave principle: other perturbations' correctly ordered intermediate responses contain transferable information about the first population response of a completely unseen perturbation source. It does **not** support an end-to-end learned wave propagator that preserves held-out response geometry through free rollout.\n\nThe primary endpoint is the within-held-out-group, pair-specific strict-trans cosine-distance Spearman correlation. Each of 50 repeated two-fold source-disjoint splits holds the source out at every day, and every group is predicted by one fitted model. A synthetic analysis showed why concatenated leave-one-source-out geometry is invalid: a no-source mean predictor scored 1.000 naively but 0.000 under the grouped metric.\n\n## Six prespecified claims\n\n| # | Claim | Score | Evidence |\n|---|---|---|---|\n| 1 | Intermediate behavior predicts the unseen source's first response | **PASS** | Correct lag ρ=0.1721 versus static 0.0556; source-bootstrap delta 0.1165, 95% CI [0.0506, 0.1540]. Held-out source absent at Days 2–5. |\n| 2 | Correct temporal order matters beyond same-wave/shuffled controls | **PASS** | Correct−same-wave delta 0.0459, CI [0.0222, 0.0623]; correct−temporal-shuffle 0.0576, CI [0.0260, 0.0823]. |\n| 3 | Signal grows with intermediate-evidence dose | **PASS** | Mean ρ: 0%,25%,50%,75%,100% = 0.0000, 0.0743, 0.1176, 0.1375, 0.1721; dose-rank ρ=1.0; 100%−0% CI [0.1436, 0.2003]. |\n| 4 | Conditional credit assignment improves the marginal propagator | **FAIL** | Best credit head 0.1682 versus marginal 0.1721 (delta −0.0039), below the fixed +0.03 gate. |\n| 5 | A learned propagator preserves geometry in free rollout | **FAIL** | Dense teacher-forced W34→W45 ρ=0.4284, but full free W23→W45 ρ=0.0427. The dominant problem is first-wave inference/exposure, not merely one-step transition capacity. |\n| 6 | A final dynamic propagated endpoint model improves over direct/static baselines | **FAIL** | Not demonstrated: no candidate passed the credit gate, so GPU attention and endpoint benchmarking were not authorized. |\n\n## Supporting and limiting observations\n\n- Wave pseudoreplicate median reliabilities were 0.691 (W23), 0.570 (W34), and 0.558 (W45), so the basic wave geometry is measurable.\n- Oracle temporal prediction supports predictive dependence, not causality or true zero-shot inference: immediate-wave ρ was 0.374 for W23→W34 and 0.415 for W34→W45.\n- The dense transition operator worked better than the low-rank operator. The tested low-rank parameterization did not consistently beat identity/same-wave/shuffled controls.\n- Orthogonal Procrustes alignment preserved Euclidean geometry numerically but did not restore held-out response-distance geometry (ρ≈0.001).\n- Leave-one-source influence analysis retained a positive correct-lag minus static gap for every omitted source (minimum 0.0755), arguing against a single-source artifact.\n- These are population pseudobulk response waves, not within-cell trajectories. The result is predictive and mechanistic in ordering/control structure, but not proof of causal molecular transmission.\n\n## Stop decision\n\nThe fixed conditional-credit gate stopped Parts K–L. `noise_dose_rollout.csv` records `NOT_RUN_GATE_STOP`; no GPU model was launched and no GEARS monitoring was performed, as GEARS had already completed.\n\n## Data and provenance\n\n- Dataset: GEO [GSE213069](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE213069), 14,945 cells, 103 modeled genes, 23 KO sources, Days 2–5.\n- Paper: Ishikawa et al., *Communications Biology* (2023), [DOI 10.1038/s42003-023-05594-4](https://doi.org/10.1038/s42003-023-05594-4).\n- Official code/data example: [masastat/RENGE](https://github.com/masastat/RENGE) pinned at `ca0d636ae47311fb5ce501f4a0a835b55379d9fa`; input SHA-256 values are recorded in `data_provenance.json`.\n"
     (RESULT_ROOT / "FINAL_VERDICT.md").write_text(verdict, encoding="utf-8")
 
-    readme = """# Perturbation-wave propagation reproduction
-
-This directory contains the complete CPU-first audit generated from the official pinned RENGE example. See `FINAL_VERDICT.md` for the scientific decision, `final_model_comparison.csv` for matched metrics, and `figures/` for compact diagnostics.
-
-Population waves are adjacent-day differences of matched-control pseudobulk responses, not single-cell trajectories. The primary evaluation is 50 repeated two-fold perturbation-source-disjoint splits with one fitted model per held-out group. The GPU stage was gated off after conditional credit heads failed to improve the marginal lag model.
-"""
+    readme = '# Perturbation-wave propagation reproduction\n\nThis directory contains the complete CPU-first analysis generated from the official pinned RENGE example. See `FINAL_VERDICT.md` for the scientific decision, `final_model_comparison.csv` for matched metrics, and `figures/` for compact diagnostics.\n\nPopulation waves are adjacent-day differences of matched-control pseudobulk responses, not single-cell trajectories. The primary evaluation is 50 repeated two-fold perturbation-source-disjoint splits with one fitted model per held-out group. The GPU stage was gated off after conditional credit heads failed to improve the marginal lag model.\n'
     (RESULT_ROOT / "README.md").write_text(readme, encoding="utf-8")
 
     manifest_files = sorted(

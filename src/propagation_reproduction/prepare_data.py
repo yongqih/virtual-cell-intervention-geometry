@@ -71,7 +71,7 @@ def main() -> None:
     numerical_audit = {
         "all_values_nonnegative": bool((values >= 0).all()),
         "fraction_expm1_values_within_1e_8_of_integer": float((np.abs(np.expm1(values) - np.rint(np.expm1(values))) < 1e-8).mean()),
-        "note": "The author example is used without additional normalization. Numerical audit is reported because its nonnegative log-like scale should not be conflated with raw counts or re-normalized silently."
+        "note": 'The author example is used without additional normalization. Numerical analysis is reported because its nonnegative log-like scale should not be conflated with raw counts or re-normalized silently.'
     }
     provenance = {
         "accessed_at": now(),

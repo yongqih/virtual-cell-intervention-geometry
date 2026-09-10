@@ -15,12 +15,15 @@
     "normalization": "per-cell counts per 10000 followed by log1p",
     "response": "perturbation-context mean minus matched context control mean",
     "rna_only": true,
-    "response_gene_axis": "intersection with frozen internal generalization_factorial/common_response_genes.txt, then exclude every primary-pair perturbation target",
-    "low_cell_robustness": "evaluate the same frozen predictions on targets above the pre-performance 25th percentile of paired-context minimum cell count"
+    "response_gene_axis": "intersection with fixed internal generalization_factorial/common_response_genes.txt, then exclude every primary-pair perturbation target",
+    "low_cell_robustness": "evaluate the same fixed predictions on targets above the pre-performance 25th percentile of paired-context minimum cell count"
   },
   "context_pair_selection": {
-    "rule": "maximum shared perturbations passing the frozen cell threshold; adequate matched controls; biologically distinct",
-    "primary_contexts": ["Co-culture", "IFNγ"],
+    "rule": "maximum shared perturbations passing the fixed cell threshold; adequate matched controls; biologically distinct",
+    "primary_contexts": [
+      "Co-culture",
+      "IFNγ"
+    ],
     "run_both_directions": true,
     "supplementary_pairs": false
   },
@@ -28,8 +31,21 @@
     "target_count": 120,
     "seed": 1701
   },
-  "coverage_fractions": [0.10, 0.25, 0.40, 0.60, 0.80, 0.90],
-  "coverage_seeds": [0, 1, 2, 3, 4],
+  "coverage_fractions": [
+    0.1,
+    0.25,
+    0.4,
+    0.6,
+    0.8,
+    0.9
+  ],
+  "coverage_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
   "model": {
     "family": "repository direct multi-output Ridge/affine",
     "alpha": 1.0,

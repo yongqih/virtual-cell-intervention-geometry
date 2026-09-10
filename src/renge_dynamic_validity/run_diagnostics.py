@@ -169,7 +169,7 @@ def main() -> None:
                        FROZEN_RESULT_ROOT / "program_propagation.csv"]
     missing = [str(path) for path in required_frozen if not path.exists()]
     if missing:
-        raise FileNotFoundError(f"Missing frozen upstream inputs: {missing}")
+        raise FileNotFoundError(f"Missing fixed upstream inputs: {missing}")
     provenance = {"created_at": now(), "python": sys.version, "platform": platform.platform(),
                   "frozen_inputs_read_only": True,
                   "inputs": [{"path": str(path.relative_to(Path(__file__).resolve().parents[2])),
@@ -397,7 +397,7 @@ def main() -> None:
                 "raw_rollout_w45_source_pearson": w45_corr[local_index],
                 "raw_rollout_w45_source_mse": w45_mse[local_index]})
 
-        # The frozen dense propagator is affine: the Jacobian is exactly state-independent.
+        # The fixed dense propagator is affine: the Jacobian is exactly state-independent.
         x_mean, x_scale, y_mean, coefficient = transition
         jacobian = coefficient / x_scale[:, None]
         singular_values = np.linalg.svd(jacobian, compute_uv=False)
@@ -411,7 +411,7 @@ def main() -> None:
         for state_name, states in (("TrueHeldoutW23", true_w23), ("PredictedW23", predicted_w23)):
             for local_index, source in enumerate(test_sources):
                 # Identical perturbation direction for true and predicted states.  For this affine
-                # frozen operator, any residual difference should be numerical roundoff only.
+                # fixed operator, any residual difference should be numerical roundoff only.
                 direction = finite_directions[local_index]
                 finite_one = np.linalg.norm(propagate(states[local_index:local_index+1] + epsilon * direction) -
                                             propagate(states[local_index:local_index+1])) / epsilon

@@ -1,4 +1,4 @@
-"""Independent, isolated replay of the frozen RENGE trajectory-entry audit."""
+'Independent, isolated replay of the fixed RENGE trajectory-entry analysis.'
 from __future__ import annotations
 
 import importlib

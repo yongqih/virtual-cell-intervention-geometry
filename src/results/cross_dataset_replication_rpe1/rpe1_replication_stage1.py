@@ -210,7 +210,7 @@ def write_qc(pb: dict[str, np.ndarray]) -> np.ndarray:
         "label_class": "clean_single_gene",
         "source_gene_measured": covered,
         "primary_model_evaluation_eligible": covered,
-        "exclusion_reason": np.where(covered, "", "source locus absent from var_names; retained in folds/QC and canonical missing-source training path"),
+        "exclusion_reason": np.where(covered, "", 'source locus absent from var_names; retained in folds/QC and reference missing-source training path'),
         "response_l2_all_genes": magnitude,
         "response_mean_abs_all_genes": np.mean(np.abs(delta), axis=1),
     })
@@ -278,7 +278,7 @@ def make_panel(pb: dict[str, np.ndarray], reference: np.ndarray, query: np.ndarr
     gene_index = {g: i for i, g in enumerate(genes)}
     source_cols = list(dict.fromkeys(gene_index[p] for p in perturbations if p in gene_index))
     if len(source_cols) >= MODEL_GENES:
-        raise RuntimeError("Frozen panel too small to hold measured source identities")
+        raise RuntimeError('fixed panel too small to hold measured source identities')
     response_mean = delta[reference].mean(0)
     residual = delta - response_mean
     selected, selected_set = list(source_cols), set(source_cols)
@@ -808,7 +808,7 @@ def verdict_and_cross(pb: dict[str, np.ndarray], rank: pd.DataFrame, pair_summar
     nn = nn[nn.record_type == "summary"].set_index("representation")
     pair = pair_summary.set_index("representation")
     rel50 = rel_summary[rel_summary.cell_threshold == 50].iloc[0]
-    # Frozen gates.
+    # fixed gates.
     a_signatures = [
         base_summary.loc["CopyControl", "absolute_state_pearson_mean"] >= .20,
         base_summary.loc["MeanResponse", "raw_delta_pooled_pearson"] - (base_summary.loc["MeanResponse", "residual_pooled_pearson"] if np.isfinite(base_summary.loc["MeanResponse", "residual_pooled_pearson"]) else 0) >= .10,
@@ -941,13 +941,13 @@ def report(verdict: str, claims: dict, rank: pd.DataFrame, pair: pd.DataFrame, r
     metric_replicated = "YES" if claims["A"] == "PASS" else "PARTIAL" if claims["A"] == "PARTIAL" else "NO"
     text = f"""{verdict}
 
-# Final RPE1 Stage 1 cross-dataset replication verdict
+# Final RPE1 Stage 1 cross-dataset replication result classification
 
 Claim A — Shared-response / metric illusion: **{claims['A']}**
 
 Claim B — Intervention geometry compression: **{claims['B']}**
 
-Claim C — Audited state/intervention geometry mismatch: **{claims['C']}**
+Claim C — evaluated state/intervention geometry mismatch: **{claims['C']}**
 
 | Diagnostic | K562 | RPE1 | Replicated? |
 |---|---:|---:|---|
@@ -971,10 +971,10 @@ Claim C — Audited state/intervention geometry mismatch: **{claims['C']}**
 2. Do Transformer/MLP again compress intervention-specific geometry? **{'YES' if claims['B']=='PASS' else 'PARTIAL' if claims['B']=='PARTIAL' else 'NO'}**.
 3. Is compression robust across spectral measures and gene panels? **{'YES' if claims['B']=='PASS' else 'NO'}**.
 4. Is RPE1 outgoing intervention geometry itself reliably measurable? **{'YES' if claims['response_geometry_reliable'] else 'NO'}** — split-cell pseudoreplicates, not biological replicates; rho={rel50.response_geometry_reproducibility:.3f} at >=50 and {rel100.response_geometry_reproducibility:.3f} at >=100 cells.
-5. Are audited RPE1 state representations poorly aligned with outgoing intervention geometry? **{'YES' if claims['state_representations_passing']>=2 else 'NO'}**.
+5. Are evaluated RPE1 state representations poorly aligned with outgoing intervention geometry? **{'YES' if claims['state_representations_passing']>=2 else 'NO'}**.
 6. Does the nearest-state-neighbor vs oracle gap reproduce? **{'YES' if (nn.oracle_gap>=.15).sum()>=2 else 'NO'}**.
 7. Which claims replicated? **A={claims['A']}; B={claims['B']}; C={claims['C']}**.
-8. What differed materially from K562? **RPE1 has 2,016 perturbations and 1,755 measured sources, requiring a 2,560-gene panel; its hosted H5AD has no replicate/batch metadata; Stage 1 used one frozen seed and 10 split-cell pseudoreplicates.**
+8. What differed materially from K562? **RPE1 has 2,016 perturbations and 1,755 measured sources, requiring a 2,560-gene panel; its hosted H5AD has no replicate/batch metadata; Stage 1 used one fixed seed and 10 split-cell pseudoreplicates.**
 9. Does any result require weakening the manuscript story? **{'NO' if all(claims[x]=='PASS' for x in ('A','B','C')) else 'YES'}**.
 10. Should we proceed to the orthogonal Norman K562 gain-of-function dataset? **{'YES' if sum(claims[x]=='PASS' for x in ('A','B','C'))>=2 else 'NO'}** — Norman was not opened or started.
 
@@ -983,7 +983,7 @@ No GO, GRN, DirectedT, external semantics, architecture search, performance-driv
     (OUT / "FINAL_RPE1_REPLICATION_VERDICT.md").write_text(text, encoding="utf-8")
     log = f"""# Research log
 
-- Frozen plan/config/split timestamps precede all model predictions.
+- fixed plan/config/split timestamps precede all model predictions.
 - scPertEval RPE1 H5AD SHA-256: `{json.loads((OUT/'dataset_manifest.json').read_text())['sha256']}`.
 - Full pseudobulk was generated by chunked backed-H5AD accumulation; no full dense cell-by-gene matrix was loaded.
 - Five source-disjoint folds, seed 1701; canonical model seed 17 only for lightweight Stage 1.
@@ -1025,7 +1025,7 @@ def main() -> None:
     print(f"  QC：2016 clean singles；measured sources={covered.sum()}；>=50 cells={(pb['counts']>=50).sum()}；>=100={(pb['counts']>=100).sum()}。", flush=True)
     print("[3/9] 仅用 control cells 构建三种 observational state 表示。", flush=True)
     reps = control_representations(pb["perturbations"].astype(str), pb["genes"].astype(str), covered)
-    print("[4/9] 运行 frozen canonical Transformer/MLP 的五折轻量 Stage 1。", flush=True)
+    print('[4/9] 运行 fixed reference Transformer/MLP 的五折轻量 Stage 1。', flush=True)
     fold_cache, per = run_models(pb, covered)
     common, stacks, oof_names = common_stacks(fold_cache)
     print(f"[5/9] 计算 Claim A/B；primary common strict-trans panel={len(common)} genes，OOF={len(oof_names)}。", flush=True)

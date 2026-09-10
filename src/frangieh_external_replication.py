@@ -136,7 +136,7 @@ def metadata_audit(config: dict[str, Any]) -> dict[str, Any]:
     pair_records.sort(key=lambda row: (-row["shared_perturbations"], row["contexts"]))
     primary = config["context_pair_selection"]["primary_contexts"]
     if pair_records[0]["contexts"] != primary:
-        raise RuntimeError(f"Frozen primary pair {primary} is not the maximum-overlap pair {pair_records[0]['contexts']}")
+        raise RuntimeError(f"fixed primary pair {primary} is not the maximum-overlap pair {pair_records[0]['contexts']}")
     paired = sorted(p for p in all_perturbations if counts.loc[primary[0], p] >= threshold and counts.loc[primary[1], p] >= threshold)
     internal = set(INTERNAL_GENES.read_text(encoding="utf-8").splitlines())
     var_names = set(data.var_names.astype(str))
@@ -146,7 +146,7 @@ def metadata_audit(config: dict[str, Any]) -> dict[str, Any]:
         descriptor_names = set(archive["perturbations"].astype(str))
     descriptor_eligible = sorted(set(paired) & descriptor_names)
     if len(descriptor_eligible) != int(config["zero_shot"]["observed_eligible_interventions"]):
-        raise RuntimeError("Frozen zero-shot descriptor accessibility count changed")
+        raise RuntimeError('fixed zero-shot descriptor accessibility count changed')
 
     rng = np.random.default_rng(int(config["target_selection"]["seed"]))
     order = rng.permutation(len(paired))
@@ -251,7 +251,7 @@ def metadata_audit(config: dict[str, Any]) -> dict[str, Any]:
         "selected_context_pair": primary,
         "selected_shared_perturbations": len(paired),
         "selection_rule": config["context_pair_selection"]["rule"],
-        "selection_reason": "maximum clean perturbation overlap at the frozen threshold, large matched controls, and distinct IFN-gamma versus T-cell co-culture immune-pressure conditions",
+        "selection_reason": 'maximum clean perturbation overlap at the fixed threshold, large matched controls, and distinct IFN-gamma versus T-cell co-culture immune-pressure conditions',
         "directions": directions,
         "performance_used_for_selection": False,
     }
@@ -276,7 +276,7 @@ def build_pseudobulk(config: dict[str, Any], design: dict[str, Any]) -> dict[str
     obs = data.obs[[config["dataset"]["context_column"], config["dataset"]["perturbation_column"], "ncounts"]].copy()
     gene_index = {name: i for i, name in enumerate(data.var_names.astype(str))}
     gene_columns = np.asarray([gene_index[name] for name in design["response_genes"]], dtype=int)
-    print(f"Loading {len(gene_columns)} frozen RNA genes from backed H5AD", flush=True)
+    print(f"Loading {len(gene_columns)} fixed RNA genes from backed H5AD", flush=True)
     expression = data.X[:, gene_columns]
     if hasattr(expression, "to_memory"):
         expression = expression.to_memory()
@@ -553,7 +553,7 @@ def make_figure(config: dict[str, Any], design: dict[str, Any], summary: dict[st
     ax.text(.30, .60, "Rsource(q)  →  Rrecipient(q)", fontsize=10)
     ax.text(.04, .36, "SHUFFLED", color=colors["SHUFFLED_ANCHOR"], weight="bold")
     ax.text(.30, .36, "Rsource(π(q))  →  Rrecipient(q)", fontsize=10)
-    ax.text(.04, .12, "Same frozen Ridge map; only query identity changes", fontsize=9)
+    ax.text(.04, .12, 'Same fixed Ridge map; only query identity changes', fontsize=9)
     ax.set_title("A  External identity-specificity test", loc="left", weight="bold")
     for panel, direction, letter in ((grid[0, 1], design["directions"][0], "B"), (grid[1, 0], design["directions"][1], "C")):
         ax = fig.add_subplot(panel)
@@ -578,7 +578,7 @@ def make_figure(config: dict[str, Any], design: dict[str, Any], summary: dict[st
 
 def write_report(config: dict[str, Any], design: dict[str, Any], summary: dict[str, Any], contrasts: pd.DataFrame, results: pd.DataFrame, leakage: pd.DataFrame, runtime: pd.DataFrame) -> None:
     curves=pd.DataFrame(summary["curve_summary"]);cells=pd.read_csv(OUT/"cell_count_audit.csv");audit=json.loads((OUT/"data_audit.json").read_text(encoding="utf-8"))
-    lines=["# FINAL EXTERNAL REPLICATION REPORT","","## A. Dataset audit","",f"RNA-only processed Frangieh Perturb-CITE-seq: {audit['n_cells']:,} cells, {audit['n_perturbations_total']} non-control gene-level perturbation identities ({audit['n_sgrna_categories']} sgRNA categories), and {audit['response_gene_count']:,} frozen strict-trans response genes. Actual contexts: {', '.join(audit['contexts'])}. Responses use per-cell CP10K-log1p pseudobulks minus matched context controls.","","## B. Selected context pair and why","",f"Selected **{design['pair'][0]} ↔ {design['pair'][1]}** before performance inspection because it had the largest clean overlap ({len(design['paired'])} perturbations at ≥20 cells/context), adequate controls, and biologically distinct immune-pressure conditions. Both directions were run.","","## C. Target/training counts","",f"A single deterministic set of {len(design['targets'])} targets was sealed; {len(design['remaining'])} other paired interventions formed nested 10/25/40/60/80/90% training sets over five seeds. The high-cell robustness subset retained {len(design['high_cell_targets'])} targets at minimum paired-context count ≥{design['robustness_threshold']}.","","## D. Runtime/resource cost","",f"Fitted Ridge maps: 60; shuffled queries reused the aligned maps with zero refits. CPU condition runtime: {runtime[runtime.stage=='FULL'].condition_total_seconds.sum():.1f} s; peak working set: {runtime.peak_working_set_mb.max():.1f} MB.","","## E. Main geometry table","","Values are five-seed mean ± seed SD with paired target-bootstrap 95% CI.",""]
+    lines=["# FINAL EXTERNAL REPLICATION REPORT","",'## A. Dataset analysis',"",f"RNA-only processed Frangieh Perturb-CITE-seq: {audit['n_cells']:,} cells, {audit['n_perturbations_total']} non-control gene-level perturbation identities ({audit['n_sgrna_categories']} sgRNA categories), and {audit['response_gene_count']:,} fixed strict-trans response genes. Actual contexts: {', '.join(audit['contexts'])}. Responses use per-cell CP10K-log1p pseudobulks minus matched context controls.","","## B. Selected context pair and why","",f"Selected **{design['pair'][0]} ↔ {design['pair'][1]}** before performance inspection because it had the largest clean overlap ({len(design['paired'])} perturbations at ≥20 cells/context), adequate controls, and biologically distinct immune-pressure conditions. Both directions were run.","","## C. Target/training counts","",f"A single deterministic set of {len(design['targets'])} targets was sealed; {len(design['remaining'])} other paired interventions formed nested 10/25/40/60/80/90% training sets over five seeds. The high-cell robustness subset retained {len(design['high_cell_targets'])} targets at minimum paired-context count ≥{design['robustness_threshold']}.","","## D. Runtime/resource cost","",f"Fitted Ridge maps: 60; shuffled queries reused the aligned maps with zero refits. CPU condition runtime: {runtime[runtime.stage=='FULL'].condition_total_seconds.sum():.1f} s; peak working set: {runtime.peak_working_set_mb.max():.1f} MB.","","## E. Main geometry table","","Values are five-seed mean ± seed SD with paired target-bootstrap 95% CI.",""]
     for direction in design["directions"]:
         lines += [f"**{direction.replace('_TO_',' → ')}**","","| Coverage | Aligned anchor | Shuffled anchor |","|---:|---:|---:|"]
         for coverage in config["coverage_fractions"]:
@@ -591,11 +591,11 @@ def write_report(config: dict[str, Any], design: dict[str, Any], summary: dict[s
     lines += ["## F. Aligned-vs-shuffle contrasts","","| Direction | Set | Contrast | Estimate | Seed SD | 95% CI |","|---|---|---|---:|---:|---:|"]
     for row in contrasts.itertuples(index=False):
         lines.append(f"| {row.direction.replace('_TO_','→')} | {row.analysis_set} | {row.contrast} | {row.estimate:.4f} | {row.seed_sd:.4f} | [{row.ci_low:.4f}, {row.ci_high:.4f}] |")
-    lines += ["","## G. Zero-shot coverage result","",f"**{config['zero_shot']['access_status']}**", "",f"Verdict: **{summary['zero_shot_verdict']}**. Only {config['zero_shot']['observed_eligible_interventions']}/{len(design['paired'])} eligible interventions had the already-existing safe descriptor, below the frozen minimum of {config['zero_shot']['minimum_eligible_interventions']}; no new representation was invented.","","## H. Cell-count robustness","",f"The pre-performance high-cell threshold was {design['robustness_threshold']} cells (paired-context minimum, population 25th percentile). The high-cell target subset contained {len(design['high_cell_targets'])} targets. Directional high-cell contrast status: {summary['rule_diagnostics']['high_cell_clear']}.","",f"Primary target minimum-count median={cells[cells.role=='TARGET'].minimum_cells_primary_pair.median():.1f}; training-pool median={cells[cells.role=='TRAINING_POOL'].minimum_cells_primary_pair.median():.1f}.","","## I. Leakage audit result","",f"**{'PASS' if leakage.leakage_firewall_pass.all() else 'FAIL'}** across {len(leakage)} direction/seed/coverage/regime rows. Targets never entered fit sets; recipient target truth was indexed only after aligned and shuffled predictions were committed; every derangement had zero fixed points.","","## J. Exact external verdict","",f"**{summary['identity_verdict']}**","",f"**{summary['zero_shot_verdict']}**","",f"**{summary['overall_verdict']}**","","## K. One-paragraph interpretation",""]
+    lines += ["","## G. Zero-shot coverage result","",f"**{config['zero_shot']['access_status']}**", "",f"result classification: **{summary['zero_shot_verdict']}**. Only {config['zero_shot']['observed_eligible_interventions']}/{len(design['paired'])} eligible interventions had the already-existing safe descriptor, below the fixed minimum of {config['zero_shot']['minimum_eligible_interventions']}; no new representation was invented.","","## H. Cell-count robustness","",f"The pre-performance high-cell threshold was {design['robustness_threshold']} cells (paired-context minimum, population 25th percentile). The high-cell target subset contained {len(design['high_cell_targets'])} targets. Directional high-cell contrast status: {summary['rule_diagnostics']['high_cell_clear']}.","",f"Primary target minimum-count median={cells[cells.role=='TARGET'].minimum_cells_primary_pair.median():.1f}; training-pool median={cells[cells.role=='TRAINING_POOL'].minimum_cells_primary_pair.median():.1f}.","",'## I. Leakage analysis result',"",f"**{'PASS' if leakage.leakage_firewall_pass.all() else 'FAIL'}** across {len(leakage)} direction/seed/coverage/regime rows. Targets never entered fit sets; recipient target truth was indexed only after aligned and shuffled predictions were committed; every derangement had zero fixed points.","",'## J. Exact external result classification',"",f"**{summary['identity_verdict']}**","",f"**{summary['zero_shot_verdict']}**","",f"**{summary['overall_verdict']}**","","## K. One-paragraph interpretation",""]
     if summary["identity_verdict"]=="EXTERNAL_IDENTITY_ANCHOR_REPLICATED":
         interpretation="In this independent Frangieh two-context system, the same intervention's empirical source-context response transferred identity-specific information: aligned anchors exceeded deterministic wrong-identity anchors in both directions, and the effect persisted after removing the lowest-cell-count target quartile. This externally supports the target-specific identifiability component of the internal result. Because no existing safe descriptor covered enough Frangieh interventions, the matched external zero-shot coverage branch was not accessible; therefore this is partial external support for generalization-axis asymmetry, not proof that all context generalization is easier than all intervention generalization."
     else:
-        interpretation="This external experiment did not cleanly establish two-direction identity-specific anchor transfer. The result is limited to the frozen Frangieh contexts and Ridge setup and does not establish a universal ordering between context and intervention generalization."
+        interpretation='This external experiment did not cleanly establish two-direction identity-specific anchor transfer. The result is limited to the fixed Frangieh contexts and Ridge setup and does not establish a universal ordering between context and intervention generalization.'
     lines.append(interpretation)
     atomic_text(OUT/"FINAL_EXTERNAL_REPLICATION_REPORT.md","\n".join(lines)+"\n")
 
@@ -614,7 +614,7 @@ def full_run(config: dict[str, Any], design: dict[str, Any], pseudobulk: dict[st
                 for (analysis_set,regime),values in boots.items():boot_store[(direction,int(seed),float(coverage),analysis_set,regime)]=values
                 print(f"{direction} seed={seed} coverage={coverage:.0%} complete in {runtime['condition_total_seconds']:.2f}s",flush=True)
     results=pd.DataFrame(result_rows);leakage=pd.DataFrame(leakage_rows);runtime=pd.DataFrame(runtime_rows)
-    if len(results)!=240 or len(leakage)!=120 or not leakage.leakage_firewall_pass.all():raise RuntimeError("External grid or leakage audit incomplete")
+    if len(results)!=240 or len(leakage)!=120 or not leakage.leakage_firewall_pass.all():raise RuntimeError('External grid or leakage analysis incomplete')
     results.to_csv(OUT/"external_results.csv",index=False);leakage.to_csv(OUT/"leakage_audit.csv",index=False)
     previous=pd.read_csv(OUT/"runtime_audit.csv");previous=previous[previous.stage=="SMOKE"].tail(1);runtime=pd.concat([previous,runtime],ignore_index=True,sort=False);runtime.to_csv(OUT/"runtime_audit.csv",index=False)
     summary,contrasts=summarize(config,design,results,boot_store);contrasts.to_csv(OUT/"external_contrasts.csv",index=False)
@@ -626,7 +626,7 @@ def full_run(config: dict[str, Any], design: dict[str, Any], pseudobulk: dict[st
 def main() -> None:
     parser=argparse.ArgumentParser();parser.add_argument("mode",choices=("audit","preprocess","smoke","run"));args=parser.parse_args()
     config=load_config();OUT.mkdir(parents=True,exist_ok=True);design=metadata_audit(config)
-    print(f"AUDIT cells={design['audit']['n_cells']} paired={len(design['paired'])} genes={len(design['response_genes'])} zero_shot=NO",flush=True)
+    print(f"analysis cells={design['audit']['n_cells']} paired={len(design['paired'])} genes={len(design['response_genes'])} zero_shot=NO",flush=True)
     if args.mode=="audit":return
     pseudobulk=build_pseudobulk(config,design)
     if args.mode=="preprocess":return

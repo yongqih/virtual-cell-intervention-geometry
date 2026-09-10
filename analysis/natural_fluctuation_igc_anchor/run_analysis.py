@@ -325,13 +325,13 @@ def main():
             "resid_cov": "negative covariance after joint OLS removal of library proxy and 20 global expression PCs",
             "resid_corr": "negative correlation after the same residualization",
         },
-        "primary_truth": "frozen fold-reference-mean-centered intervention residual q",
-        "secondary_truth": "frozen global-control-relative response r",
+        "primary_truth": 'fixed fold-reference-mean-centered intervention residual q',
+        "secondary_truth": 'fixed global-control-relative response r',
         "calibration_source_rule": (
-            "frozen outer-train source list intersected with the 1,755 measured source genes for which a "
-            "control-expression fluctuation vector exists; q remains centered by the original full frozen-train mean"
+            'fixed outer-train source list intersected with the 1,755 measured source genes for which a '
+            'control-expression fluctuation vector exists; q remains centered by the original full fixed-train mean'
         ),
-        "strict_trans_panel": "intersection of the five frozen fold-local strict-trans panels",
+        "strict_trans_panel": 'intersection of the five fixed fold-local strict-trans panels',
         "residualization": {
             "cells": "control only",
             "pca": "sklearn PCA, centered full 8749-gene normalized control expression, randomized solver",
@@ -368,7 +368,7 @@ def main():
         "manuscript_or_existing_outputs_modified": False,
     }
     dump_json(OUT / "experiment_manifest.json", manifest)
-    print("[1/8] Preregistered manifest written before outcome computation", flush=True)
+    print('[1/8] prespecified manifest written before outcome computation', flush=True)
 
     split = json.loads(SPLIT_PATH.read_text(encoding="utf-8"))
     preprocess = json.loads(PREPROCESS_PATH.read_text(encoding="utf-8"))
@@ -405,10 +405,10 @@ def main():
         r = np.asarray(pb["delta"][data["query_rows"].astype(int)][:, common_indices], np.float64)
         exact = r - np.asarray(data["training_mean"])[cols]
         if not np.allclose(q, exact, atol=1e-7, rtol=1e-7):
-            raise RuntimeError(f"Frozen truth mismatch in fold {fold}")
-        # The frozen split spans all 2,016 perturbations, whereas a control-derived
+            raise RuntimeError(f"fixed truth mismatch in fold {fold}")
+        # The fixed split spans all 2,016 perturbations, whereas a control-derived
         # target vector exists only for the 1,755 measured source genes. Calibration
-        # therefore uses the preregistered intersection, never a held-out source.
+        # therefore uses the prespecified intersection, never a held-out source.
         train_names = np.asarray(
             [name for name in split["folds"][fold]["train_sources"] if name in source_lookup]
         ).astype(str)
@@ -430,7 +430,7 @@ def main():
                 "n_frozen_train_sources_all": len(split["folds"][fold]["train_sources"]),
             }
         )
-    print(f"[2/8] Frozen folds and {len(common_genes)}-gene common strict-trans panel verified", flush=True)
+    print(f"[2/8] fixed folds and {len(common_genes)}-gene common strict-trans panel verified", flush=True)
 
     backed = ad.read_h5ad(DATA, backed="r")
     control_mask = np.asarray(backed.obs["perturbation"].astype(str) == "control")
@@ -1128,7 +1128,7 @@ def main():
         "control_definition": 'obs["perturbation"] == "control"',
         "response_definitions": {
             "r": "cached perturbation pseudobulk mean minus all-control pseudobulk mean",
-            "q": "r minus mean r among that outer fold's frozen reference/train sources",
+            "q": "r minus mean r among that outer fold's fixed reference/train sources",
         },
         "software": {
             "python": sys.version,
@@ -1183,7 +1183,7 @@ def main():
         pos += 0.5
     ax.bar(positions, values, color=["#333333" if "real" in label else "#BBBBBB" for label in labels])
     ax.axhline(0, color="black", linewidth=0.8); ax.set_xticks(positions, labels, rotation=55, ha="right")
-    ax.set(ylabel="Mean cosine", title="Real target vectors versus preregistered nulls")
+    ax.set(ylabel="Mean cosine", title='Real target vectors versus prespecified nulls')
     fig.tight_layout(); fig.savefig(FIGURES / "02_real_vs_shuffled_orientation.png"); fig.savefig(FIGURES / "02_real_vs_shuffled_orientation.pdf"); plt.close(fig)
 
     fig, ax = plt.subplots(figsize=(7.0, 4.0))
@@ -1244,21 +1244,21 @@ def main():
     best_spec = spectral[(spectral.record_type == "fold_mean") & (spectral.estimator == best_estimator) & (spectral.prediction_type == "zero_shot_global_scalar")].iloc[0]
     readme = f"""# Natural-fluctuation IGC anchor: Replogle RPE1
 
-This directory is a self-contained, additive analysis. No existing IGC result, manuscript file, or figure was modified.
+This analysis tests whether target-gene expression variation in unperturbed RPE1 cells predicts intervention-specific responses.
 
-## Frozen data and design
+## fixed data and design
 
 - Processed single-cell file: `{DATA.relative_to(ROOT)}` (SHA-256 recorded in `data_provenance.json`).
 - Controls: `obs[\"perturbation\"] == \"control\"`; {int(control_mask.sum()):,} of {len(control_mask):,} cells.
 - Expression genes: {len(genes):,}; eligible perturbation sources: {len(source_names):,}.
-- Primary response panel: {len(common_genes):,} genes in the intersection of all five frozen strict-trans panels; zero source-gene overlap.
-- Frozen source-disjoint fold sizes: {', '.join(str(len(item['names'])) for item in folds)}.
-- Primary truth is the frozen fold-reference-centered residual `q`; control-relative `r` is secondary.
+- Primary response panel: {len(common_genes):,} genes in the intersection of all five fixed strict-trans panels; zero source-gene overlap.
+- fixed source-disjoint fold sizes: {', '.join(str(len(item['names'])) for item in folds)}.
+- Primary truth is the fixed fold-reference-centered residual `q`; control-relative `r` is secondary.
 - Control-derived estimators use control cells only. Residualized estimators remove a library-size proxy and {N_PCS} full-expression control-cell PCs.
 
 ## Primary result
 
-The preregistered conservative gate selected `{best_estimator}` among the two residualized estimators.
+The prespecified estimator-selection rule selected `{best_estimator}` among the two residualized estimators.
 
 - Mean / median held-out `q` cosine: {best.mean_cosine:.5f} / {best.median_cosine:.5f}.
 - Fraction cosine > 0: {best.fraction_cosine_positive:.3f}; fraction target-permutation empirical p < 0.05: {best.fraction_empirical_p_lt_0_05:.3f}.
@@ -1267,13 +1267,13 @@ The preregistered conservative gate selected `{best_estimator}` among the two re
 - Grouped pairwise geometry Spearman: {best_geom.response_distance_spearman:.5f} (source bootstrap 95% CI {best_geom.source_bootstrap_ci_low:.5f}, {best_geom.source_bootstrap_ci_high:.5f}).
 - kNN overlap@10: {best_geom.local_knn_overlap_k10:.4f}; top-1/top-5 retrieval: {best_geom.target_retrieval_top1:.4f}/{best_geom.target_retrieval_top5:.4f}.
 - Between-source variance retention: {best_spec.between_source_variance_ratio:.5f}; entropy-effective-rank retention: {best_spec.entropy_effective_rank_retention:.5f}.
-- Existing unchanged EstablishedOBS71 result: rho {float(established_old.spearman_rho):.5f} (95% CI {float(established_old.ci_low):.5f}, {float(established_old.ci_high):.5f}).
+- EstablishedOBS71 comparison: rho {float(established_old.spearman_rho):.5f} (95% CI {float(established_old.ci_low):.5f}, {float(established_old.ci_high):.5f}).
 
 The raw estimators contain a state-confounded one-dimensional component: the unconstrained targetwise oracle can flip this axis and therefore gives a much larger ceiling than the sign-constrained or training-only versions. After control-cell state removal, signed orientation and oracle energy return to null scale.
 
 The residualized spectral rank must be interpreted together with amplitude: when variance retention is nearly zero, a high numerical/effective rank is not geometry rescue.
 
-## Verdict
+## result classification
 
 `{verdict}`
 
@@ -1293,7 +1293,7 @@ Because the preregistered RPE1 result is null, optional SGS, control-cell subsam
 The required CSV/JSON files are in this directory. Plot-ready subsets are in `source_data/`; draft publication-quality PNG and PDF figures are in `figures/`. `per_target_orientation.csv`, `oracle_projection_results.csv`, and `zero_shot_projection_results.csv` retain target-level records. All pairwise geometry is computed within fold only.
 """
     (OUT / "README.md").write_text(readme, encoding="utf-8")
-    print(f"[8/8] Outputs, plots, provenance, and verdict complete: {verdict}", flush=True)
+    print(f"[8/8] Outputs, plots, provenance, and result classification complete: {verdict}", flush=True)
 
 
 if __name__ == "__main__":

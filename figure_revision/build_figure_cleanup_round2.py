@@ -1,9 +1,4 @@
-"""Build the frozen-data Figure 2a candidate and merged Supplementary Figure 11.
-
-This is a rendering-only task.  It reconstructs the already published common
-truth-derived response basis from frozen OOF predictions and combines existing
-internal/external anchor robustness source data.  It never trains a model.
-"""
+'Build the fixed-data Figure 2a candidate and merged Supplementary Figure 11.\n\nThis is a rendering-only task.  It reconstructs the already published common\ntruth-derived response basis from fixed OOF predictions and combines existing\ninternal/external anchor robustness source data.  It never trains a model.\n'
 
 from __future__ import annotations
 
@@ -82,7 +77,7 @@ def ensure_output() -> None:
 def save_pair(fig: plt.Figure, stem: str) -> tuple[Path, Path]:
     svg = OUT / f"{stem}.svg"
     png = OUT / f"{stem}.png"
-    metadata = {"Date": None, "Creator": "AI4Sci frozen figure cleanup round 2"}
+    metadata = {"Date": None, "Creator": 'AI4Sci fixed figure cleanup round 2'}
     fig.savefig(svg, metadata=metadata, facecolor="white")
     fig.savefig(png, dpi=600, facecolor="white", metadata={"Software": "AI4Sci"})
     plt.close(fig)
@@ -120,7 +115,7 @@ def _load_anchor_inputs() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.
     ]
     missing = [str(path) for path in paths if not path.is_file()]
     if missing:
-        raise FileNotFoundError(f"Missing frozen source-data files: {missing}")
+        raise FileNotFoundError(f"Missing fixed source-data files: {missing}")
     return tuple(pd.read_csv(path) for path in paths)  # type: ignore[return-value]
 
 
@@ -167,7 +162,7 @@ def build_per_seed_contrasts(
     )
     max_diff = float(np.max(np.abs(check["estimate_recomputed"] - check["estimate_reported"])))
     if max_diff > 1e-12:
-        raise RuntimeError(f"Per-seed contrast reconstruction disagrees with frozen summary: {max_diff}")
+        raise RuntimeError(f"Per-seed contrast reconstruction disagrees with fixed summary: {max_diff}")
     frame.attrs["max_mean_difference_vs_frozen"] = max_diff
     return frame
 
@@ -525,7 +520,7 @@ def reconstruct_truth_pca() -> tuple[pd.DataFrame, pd.DataFrame, dict[str, objec
         raise RuntimeError(f"Figure 2a reproduction mismatch: PC1={pc1_diff}, PC2={pc2_diff}")
 
     metadata: dict[str, object] = {
-        "fit_matrix": "stacked frozen Truth residual responses across five OOF folds",
+        "fit_matrix": 'stacked fixed Truth residual responses across five OOF folds',
         "fit_rows": int(truth_all.shape[0]),
         "response_genes": int(truth_all.shape[1]),
         "fold_truth_rows": {str(block["fold"]): len(block["names"]) for block in blocks},
@@ -653,15 +648,7 @@ def build_figure2a_candidates() -> dict[str, object]:
 
 
 def write_mapping() -> None:
-    text = """# Updated supplementary-figure numbering
-
-- Supplementary Figures 1–10: unchanged.
-- Supplementary Figure 11: **Internal and external robustness of identity-specific empirical anchoring.**
-  This single four-panel figure replaces the two separately planned robustness figures.
-- The final Supplementary Information contains Figures 1–11 only.
-
-The Supplementary Information DOCX was intentionally not edited in this rendering task.
-"""
+    text = '# Supplementary Figure 11: empirical-anchor robustness\n\nThe four panels show K562-to-RPE1 and RPE1-to-K562 seed trajectories, paired seed contrasts, and Frangieh comparisons stratified by target cell count. Input tables and output checksums are recorded with the figure.\n'
     (OUT / "updated_figure_number_mapping.md").write_text(text, encoding="utf-8")
 
 
@@ -743,7 +730,7 @@ def write_report(qa: dict[str, object]) -> None:
 
 ## Scope and outcome
 
-PASS. This task only rearranged and rendered frozen quantitative evidence. No experiment, model training, inference, resampling, manuscript edit, or conceptual-art change was performed. Existing estimates and confidence intervals were not altered; the only calculations were the requested deterministic PC3 extension and exact reconstruction of seed-level contrasts from frozen rows. The current Figure 2 was not overwritten.
+PASS. This task only rearranged and rendered fixed quantitative evidence. No experiment, model training, inference, resampling, manuscript edit, or conceptual-art change was performed. Existing estimates and confidence intervals were not altered; the only calculations were the requested deterministic PC3 extension and exact reconstruction of seed-level contrasts from fixed rows. The current Figure 2 was not overwritten.
 
 ## Files generated
 
@@ -751,21 +738,21 @@ PASS. This task only rearranged and rendered frozen quantitative evidence. No ex
 - `SuppFig11a.svg/png` through `SuppFig11d.svg/png`: individual panel exports.
 - `Figure2a_3D_candidate.svg/png`: matched three-panel 3D candidate.
 - `Figure2a_2D_reference.svg/png`: matched two-dimensional reference.
-- `source_data/Figure2a_projection_coordinates.csv`: one row per frozen source, including Truth/GEARS/scGPT PC1–PC3 coordinates.
-- `source_data/Figure2a_pca_loadings.csv` and `source_data/Figure2a_pca_definition.json`: shared-basis audit artifacts.
-- `source_data/SuppFig11*.csv`: exact plotted frozen values, including all per-seed contrasts.
+- `source_data/Figure2a_projection_coordinates.csv`: one row per fixed source, including Truth/GEARS/scGPT PC1–PC3 coordinates.
+- `source_data/Figure2a_pca_loadings.csv` and `source_data/Figure2a_pca_definition.json`: shared-basis analysis artifacts.
+- `source_data/SuppFig11*.csv`: exact plotted fixed values, including all per-seed contrasts.
 - `updated_figure_number_mapping.md`: final Supplementary Figures 1–11 mapping.
 - `qa/qa_summary.json` and `output_manifest.csv`: rendering and integrity checks.
 
-## Exact frozen sources
+## Exact fixed sources
 
 {os.linesep.join(source_lines)}
 
-The five frozen scGPT and five frozen GEARS prediction files are listed above and are also enumerated with SHA-256 digests in `source_data/Figure2a_pca_definition.json`.
+The five fixed scGPT and five fixed GEARS prediction files are listed above and are also enumerated with SHA-256 digests in `source_data/Figure2a_pca_definition.json`.
 
 ## PCA definition
 
-The basis was fit exactly once to the stacked five-fold Truth residual-response matrix ({pca['fit_rows']} sources × {pca['response_genes']} frozen response genes), after column-centering by the Truth mean. The first three right singular vectors were then shared by Truth, GEARS, and scGPT. The first three singular values were `{singular[0]:.12g}`, `{singular[1]:.12g}`, and `{singular[2]:.12g}`. A single scale factor of `{pca['scale_value']:.12g}`—the maximum absolute Truth coordinate over PC1/PC2—preserves the current two-dimensional Figure 2a coordinates.
+The basis was fit exactly once to the stacked five-fold Truth residual-response matrix ({pca['fit_rows']} sources × {pca['response_genes']} fixed response genes), after column-centering by the Truth mean. The first three right singular vectors were then shared by Truth, GEARS, and scGPT. The first three singular values were `{singular[0]:.12g}`, `{singular[1]:.12g}`, and `{singular[2]:.12g}`. A single scale factor of `{pca['scale_value']:.12g}`—the maximum absolute Truth coordinate over PC1/PC2—preserves the current two-dimensional Figure 2a coordinates.
 
 Numerical reproduction of the current Figure 2a: maximum absolute difference = `{pca['current_figure2a_pc1_max_abs_difference']:.3e}` for PC1 and `{pca['current_figure2a_pc2_max_abs_difference']:.3e}` for PC2.
 
@@ -788,8 +775,8 @@ The 3D candidate exposes whether an apparent two-dimensional collapse reflects c
 - Every PNG is exported at approximately 600 dpi.
 - Supplementary panels 11a and 11b share axes and retain all five frozen seed trajectories.
 - Panel 11c contains five seed points per direction and contrast; recomputed means match the frozen contrast summary to `{qa['supplementary_figure11']['contrast_mean_max_difference_vs_frozen']:.3e}`.
-- Panel 11d uses the frozen primary and high-cell 90% estimates and confidence intervals.
-- No Supplementary DOCX or manuscript file was changed.
+- Panel 11d uses the fixed primary and high-cell 90% estimates and confidence intervals.
+- Figure generation uses the released source tables without model fitting.
 """
     (OUT / "figure_cleanup_round2_report.md").write_text(report, encoding="utf-8")
 

@@ -74,9 +74,9 @@ def load_inputs():
     sources = pb["perturbations"].astype(str)
     gene_lookup = {g: i for i, g in enumerate(genes)}
     source_lookup = {s: i for i, s in enumerate(sources)}
-    # scGPT's frozen vocabulary lacks 11 legacy gene symbols from the 768-gene
-    # strict-trans panel. The preregistered common response panel is exactly the
-    # 757-gene leakage-safe intersection used for matched literature-model audit.
+    # scGPT's fixed vocabulary lacks 11 legacy gene symbols from the 768-gene
+    # strict-trans panel. The prespecified common response panel is exactly the
+    # 757-gene leakage-safe intersection used for matched literature-model analysis.
     panel_names = np.asarray(sets["common_response_genes"], str)
     if set(panel_names) & set(sets["eligible_sources"]):
         raise RuntimeError("Strict-trans panel contains an eligible perturbation source")
@@ -147,7 +147,7 @@ def verify_folds(pb, sets, outer, genes, source_lookup, panel_names, panel):
                            "checkpoint_sha256": marker["artifacts"]["best_checkpoint"]["sha256"],
                            "prediction_sha256": marker["artifacts"]["predictions"]["sha256"]})
     if all_oof != set(sets["scgpt_sources"]):
-        raise RuntimeError("OOF union does not equal frozen scGPT source set")
+        raise RuntimeError('OOF union does not equal fixed scGPT source set')
     if len(checkpoint_hashes) != 5:
         raise RuntimeError("Five folds do not have five distinct best checkpoints")
     return folds, split_rows, records, manifest
@@ -263,7 +263,7 @@ def response_landscape(folds):
 
 def main():
     if OUT.exists() and any(OUT.iterdir()):
-        raise RuntimeError(f"Refusing to overwrite existing audit: {OUT}")
+        raise RuntimeError(f"Refusing to overwrite existing analysis: {OUT}")
     OUT.mkdir(parents=True, exist_ok=True)
     pb, sets, outer, genes, source_lookup, panel_names, panel = load_inputs()
     folds, split_rows, records, manifest = verify_folds(pb, sets, outer, genes, source_lookup, panel_names, panel)
@@ -292,7 +292,7 @@ def main():
     else:
         verdict = "SCGPT_INTERVENTION_GEOMETRY_COMPRESSION_NOT_SUPPORTED"
     provenance = {
-        "created_at": now(), "audit_type": "read-only frozen artifact audit", "training_run": False,
+        "created_at": now(), "audit_type": 'read-only fixed artifact analysis', "training_run": False,
         "inference_run": False, "gpu_used": False, "dataset": "Replogle et al. RPE1 CRISPRi",
         "n_cells": 206585, "n_oof_sources": len(sets["scgpt_sources"]), "strict_trans_genes": len(panel_names),
         "model_prediction_genes": 2489, "experiment_hash": manifest["experiment_hash"],
@@ -300,10 +300,10 @@ def main():
                   "pretrained_checkpoint": "external/scGPT/checkpoints/scGPT_human/best_model.pt",
                   "checkpoint_selection": "inner-validation MSE; outer OOF untouched",
                   "loaded_pretrained_tensors_by_fold": [r["loaded_pretrained_tensors"] for r in split_rows]},
-        "response_definition": {"control": "frozen global pseudobulk control_mean",
+        "response_definition": {"control": 'fixed global pseudobulk control_mean',
                                 "total_response": "predicted/true perturbed state minus global control_mean",
                                 "intervention_residual": "total response minus fold-specific outer-train mean response",
-                                "strict_trans": "frozen panel excludes every eligible perturbation-source gene"},
+                                "strict_trans": 'fixed panel excludes every eligible perturbation-source gene'},
         "geometry": {"distance": "cosine after row L2 normalization", "association": "Spearman distance-rank correlation",
                      "same_fitted_model_only": True, "cross_fold_pairs_used": False,
                      "bootstrap": f"{N_BOOT} perturbation-source multinomial resamples; seed {BOOT_SEED}"},
@@ -315,9 +315,9 @@ def main():
     atomic_json(OUT / "scgpt_provenance.json", provenance)
     report = f"""{verdict}
 
-# Final frozen scGPT preprint audit
+# scGPT intervention-response evaluation
 
-No model was trained or loaded and no inference was performed. All metrics use the five completed frozen OOF prediction files.
+No model was trained or loaded and no inference was performed. All metrics use the five completed fixed OOF prediction files.
 
 ## Integrity and leakage
 
@@ -326,9 +326,9 @@ No model was trained or loaded and no inference was performed. All metrics use t
 - Inner train, inner validation, and outer OOF source disjointness: **PASS**.
 - Outer OOF used for checkpoint selection: **NO**.
 - Strict-trans filtering: **PASS**; {len(panel_names)} genes, with all eligible perturbation-source genes excluded.
-- Geometry firewall: **PASS**; pairwise distances were computed only within each independently fitted fold and summarized across folds.
+- within-model grouped evaluation: **PASS**; pairwise distances were computed only within each independently fitted fold and summarized across folds.
 
-## Canonical results
+## reference results
 
 - Absolute perturbed-state Pearson: **{h['absolute_perturbed_state']['perturbed_state_or_response_pearson']:.6f}**.
 - Total control-relative response Pearson: **{h['total_perturbation_response']['perturbed_state_or_response_pearson']:.6f}**.
@@ -341,7 +341,7 @@ No model was trained or loaded and no inference was performed. All metrics use t
 - Entropy effective rank: prediction **{s['predicted_entropy_effective_rank']:.6f}**, truth **{s['truth_entropy_effective_rank']:.6f}**.
 - PC80: prediction **{s['predicted_pc80']:.1f}**, truth **{s['truth_pc80']:.1f}**.
 
-## Required interpretation
+## Interpretation
 
 - Metric illusion replicates: **{'YES' if h['absolute_perturbed_state']['perturbed_state_or_response_pearson'] > .9 and h['intervention_specific_residual']['perturbed_state_or_response_pearson'] < h['absolute_perturbed_state']['perturbed_state_or_response_pearson'] else 'NO'}**.
 - Global geometry is compressed: **{'YES' if g['response_distance_spearman'] < .5 else 'NO'}**.

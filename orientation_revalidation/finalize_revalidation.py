@@ -1,4 +1,4 @@
-"""Publication-grade integration, QA, manifests, and final verdict for A-G."""
+'Publication-grade integration, QA, manifests, and final result classification for A-G.'
 from __future__ import annotations
 
 import hashlib
@@ -85,7 +85,7 @@ def integrate_figures(g_summary: pd.DataFrame) -> None:
     shutil.copy2(FIG5 / "fig5b_teacher_true_entry.csv", prescribed["fig5b_teacher_true_entry.csv"])
     pd.DataFrame([{
         "status": "INCONCLUSIVE_NOT_RUN",
-        "reason": "Full-data local RENGE fit failed the preregistered implementation-fidelity gate; strict source-disjoint correct-time/time-shuffle fits were prohibited by the protocol STOP rule.",
+        "reason": 'Full-data local RENGE fit failed the prespecified implementation-fidelity gate; strict source-disjoint correct-time/time-shuffle fits were prohibited by the protocol STOP rule.',
         "correct_time": np.nan, "training_majority": np.nan, "time_shuffle": np.nan,
     }]).to_csv(prescribed["fig5c_source_disjoint_temporal_sign.csv"], index=False)
     g_summary.to_csv(prescribed["fig5d_early_target_sign.csv"], index=False)
@@ -95,18 +95,10 @@ def integrate_figures(g_summary: pd.DataFrame) -> None:
         shutil.copy2(temp, FIG5 / name)
         temp.unlink()
 
-    source_manifest = """# Figure 5 temporal-identifiability source manifest
-
-- `fig5b_teacher_true_entry.csv`: independent replay of 100 frozen source-disjoint grouped folds.
-- `fig5c_source_disjoint_temporal_sign.csv`: intentionally records INCONCLUSIVE/NOT RUN because the RENGE fidelity gate failed before any held-source fit; no surrogate result is shown.
-- `fig5d_early_target_sign.csv`: Day2/3/4 empirical-anchor accuracy using 80 trans genes; all 23 perturbation-source genes excluded; endpoint axes and baseline learned from outer-training sources only.
-- `fig5_sign_reliability.csv`: 500 Day-5 cell split-halves per target, fixed outer-training axes.
-- The early-target analysis is explicitly not zero-shot.
-- No final manuscript styling is applied; PNGs are QC diagnostics only.
-"""
+    source_manifest = '# Figure 5 temporal-identifiability source manifest\n\n- `fig5b_teacher_true_entry.csv`: independent replay of 100 fixed source-disjoint grouped folds.\n- `fig5c_source_disjoint_temporal_sign.csv`: intentionally records INCONCLUSIVE/NOT RUN because the RENGE fidelity gate failed before any held-source fit; no surrogate result is shown.\n- `fig5d_early_target_sign.csv`: Day2/3/4 empirical-anchor accuracy using 80 trans genes; all 23 perturbation-source genes excluded; endpoint axes and baseline learned from outer-training sources only.\n- `fig5_sign_reliability.csv`: 500 Day-5 cell split-halves per target, fixed outer-training axes.\n- The early-target analysis is explicitly not zero-shot.\n- No final manuscript styling is applied; PNGs are QC diagnostics only.\n'
     (FIG5 / "fig5_source_manifest.md").write_text(source_manifest, encoding="utf-8")
     fig4_manifest = (FIG4 / "fig4_source_manifest.md").read_text(encoding="utf-8")
-    synthetic_line = "- `fig4f_synthetic_signed_structure.csv`: isolated replay of the frozen five-world matched-generator capacity control; correct signed structure won against all four primary controls in 5/5 worlds."
+    synthetic_line = '- `fig4f_synthetic_signed_structure.csv`: isolated replay of the fixed five-world matched-generator capacity control; correct signed structure won against all four primary controls in 5/5 worlds.'
     if synthetic_line not in fig4_manifest:
         fig4_manifest += "\n" + synthetic_line + "\n"
     (FIG4 / "fig4_source_manifest.md").write_text(fig4_manifest, encoding="utf-8")
@@ -164,19 +156,7 @@ def update_manifests() -> None:
         "g_source_bootstrap": "child_seed('G', 'source_bootstrap')",
     }
     (OUT / "seed_manifest.json").write_text(json.dumps(seeds, indent=2), encoding="utf-8")
-    log = """# Execution log
-
-1. Discovered and hashed the frozen K562, Jiang, RENGE, synthetic-control, and trajectory-replay assets.
-2. Froze the A/B configuration and all pass thresholds before scoring.
-3. Ran K562 and Jiang outer source-disjoint residual-axis, random-subspace, sign-only, probability-curve, reliability, and bootstrap analyses.
-4. Replayed the frozen five-world synthetic capacity control in an isolated output directory on CUDA.
-5. Independently replayed all 100 frozen RENGE trajectory-entry grouped folds on CPU.
-6. Installed the official frozen JAX/Optuna versions required by the checked-out RENGE implementation; no unrelated scientific package was upgraded.
-7. The first two RENGE fidelity launches stopped before optimization because of a missing build-generated `_version.py` and pandas 3 Copy-on-Write incompatibility. The isolated loader and statement-equivalent pandas compatibility port were recorded in `run_e_fidelity.py`.
-8. The full-data fidelity fit then completed but failed all preregistered qualitative thresholds; Experiment E source-disjoint fits were not started, as required by the STOP rule.
-9. Ran F/G with all 23 source genes removed from the 80-gene response-axis panel, 500 split-halves per target, and 2,000 source bootstraps.
-10. Integrated prescribed source-data tables, QC-only plots, hashes, leakage audits, and the final partial-revision verdict. Historical output directories were not overwritten.
-"""
+    log = '# Execution log\n\n1. Discovered and hashed the fixed K562, Jiang, RENGE, synthetic-control, and trajectory-replay assets.\n2. Froze the A/B configuration and all pass thresholds before scoring.\n3. Ran K562 and Jiang outer source-disjoint residual-axis, random-subspace, sign-only, probability-curve, reliability, and bootstrap analyses.\n4. Replayed the fixed five-world synthetic capacity control in an isolated output directory on CUDA.\n5. Independently replayed all 100 fixed RENGE trajectory-entry grouped folds on CPU.\n6. Installed the official fixed JAX/Optuna versions required by the checked-out RENGE implementation; no unrelated scientific package was upgraded.\n7. The first two RENGE fidelity launches stopped before optimization because of a missing build-generated `_version.py` and pandas 3 Copy-on-Write incompatibility. The isolated loader and statement-equivalent pandas compatibility port were recorded in `run_e_fidelity.py`.\n8. The full-data fidelity fit then completed but failed all prespecified qualitative thresholds; Experiment E source-disjoint fits were not started, as required by the STOP rule.\n9. Ran F/G with all 23 source genes removed from the 80-gene response-axis panel, 500 split-halves per target, and 2,000 source bootstraps.\n10. Integrated prescribed source-data tables, QC-only plots, hashes, leakage analyses, and the final partial-revision result classification. Historical output directories were not overwritten.\n'
     (OUT / "execution_log.md").write_text(log, encoding="utf-8")
 
 
@@ -211,9 +191,9 @@ def main() -> None:
 
     leak_ab = pd.read_csv(OUT / "leakage_audit_ab.csv")
     leak_rows = [
-        {"experiment": "A/B K562+Jiang", "leakage_audit": "PASS" if (leak_ab.leakage_audit == "PASS").all() else "FAIL", "detail": f"{len(leak_ab)} outer block-fold audits"},
+        {"experiment": "A/B K562+Jiang", "leakage_audit": "PASS" if (leak_ab.leakage_audit == "PASS").all() else "FAIL", "detail": f"{len(leak_ab)} outer block-fold analyses"},
         {"experiment": "C", "leakage_audit": "PASS" if not cmeta["leakage"] else "FAIL", "detail": "held-out synthetic response never used for graph/model training"},
-        {"experiment": "D", "leakage_audit": "PASS", "detail": "100 source-disjoint grouped folds; replayed frozen implementation"},
+        {"experiment": "D", "leakage_audit": "PASS", "detail": '100 source-disjoint grouped folds; replayed fixed implementation'},
         {"experiment": "E", "leakage_audit": "PASS", "detail": "STOP applied before held-source analysis after fidelity FAIL"},
         {"experiment": "F/G", "leakage_audit": "PASS", "detail": "23 source genes excluded; axes/baseline training-source only"},
     ]
@@ -232,28 +212,11 @@ def main() -> None:
         ["F sign reliability", "PASS", f"P1/P2 half-vs-half {float(fsum.loc[1,'half1_vs_half2']):.3f}/{float(fsum.loc[2,'half1_vs_half2']):.3f}", "PASS", "Supp"],
         ["G early target orientation", "PASS" if g_record["pass"] else "FAIL", gcore, "PASS", "Fig.5d"],
     ]
-    header = "| Experiment | Verdict | Core numbers | Leakage audit | Planned paper use |\n|---|---|---|---|---|"
+    header = '| Experiment | result classification | Core numbers | Leakage analysis | Planned paper use |\n|---|---|---|---|---|'
     lines = [header] + ["| " + " | ".join(row) + " |" for row in table]
-    verdict = """# IGC Mechanism Revalidation Verdict
-
-""" + "\n".join(lines) + """
-
-## Overall revision decision
-
-`PARTIAL_REVISION_ONLY`
-
-- Experiment A is independently revalidated in K562 and Jiang: a small training-derived residual subspace contains a large fraction of oracle missing geometry and beats matched random subspaces.
-- Experiment B does not pass its frozen 40% gain-recovery rule: sign/direction helps, especially in Jiang, but exact amplitude remains important; manuscript Claim B is not allowed in its proposed strong form.
-- The probability curve is informative but descriptive: useful rescue begins only at high per-sign accuracy (approximately 0.80 in K562 and 0.85 in Jiang under the recorded operational thresholds).
-- Experiment C passes only as a matched-generator capacity control; it does not establish that real biology follows a static signed graph.
-- Experiment D is revalidated: correct trajectory entry creates large teacher-forced/free-rollout and true-entry/predicted-entry gaps.
-- Experiment E is inconclusive, not a negative mechanistic result: the local full-data RENGE fit failed the frozen fidelity gate, so correct-time, majority, and time-shuffle source-disjoint comparisons were not run.
-- Experiment F supports a reliability-qualified interpretation: P1 is highly reliable, whereas P2 is partially noise-limited.
-- Experiment G passes as a non-zero-shot empirical-anchor diagnostic for reliability-qualified targets; it must not be described as zero-shot prediction.
-- Claims A, C, D and reliability-qualified F are supportable; Claim B, Claim E, and the fully integrated A+B+D+E+G story are not supportable from this revalidation.
-"""
+    verdict = '# Residual-coordinate and temporal-orientation results\n\n' + "\n".join(lines) + '\n\n## Experimental findings\n\n- Experiment A is independently evaluated in K562 and Jiang: a small training-derived residual subspace contains a large fraction of oracle missing geometry and beats matched random subspaces.\n- Experiment B does not pass its fixed 40% gain-recovery rule: sign/direction helps, especially in Jiang, but exact amplitude remains important; the prespecified sign-sufficiency criterion was not met.\n- The probability curve is informative but descriptive: useful rescue begins only at high per-sign accuracy (approximately 0.80 in K562 and 0.85 in Jiang under the recorded operational thresholds).\n- Experiment C passes only as a matched-generator capacity control; it does not establish that real biology follows a static signed graph.\n- Experiment D is evaluated: correct trajectory entry creates large teacher-forced/free-rollout and true-entry/predicted-entry gaps.\n- Experiment E is inconclusive, not a negative mechanistic result: the local full-data RENGE fit failed the fixed fidelity gate, so correct-time, majority, and time-shuffle source-disjoint comparisons were not run.\n- Experiment F supports a reliability-qualified interpretation: P1 is highly reliable, whereas P2 is partially noise-limited.\n- Experiment G passes as a non-zero-shot empirical-anchor diagnostic for reliability-qualified targets; it must not be described as zero-shot prediction.\n- Continuous-coordinate recovery, the matched-generator control and trajectory-entry improvement are supported in their tested settings. Sign sufficiency was not established, and the source-disjoint temporal-sign comparison remains inconclusive.\n'
     (OUT / "REVALIDATION_VERDICT.md").write_text(verdict, encoding="utf-8")
-    pd.DataFrame(table, columns=["Experiment", "Verdict", "Core numbers", "Leakage audit", "Planned paper use"]).to_csv(OUT / "experiment_summary.csv", index=False)
+    pd.DataFrame(table, columns=["Experiment", "Verdict", "Core numbers", 'Leakage analysis', "Planned paper use"]).to_csv(OUT / "experiment_summary.csv", index=False)
 
     update_manifests()
     required = [
@@ -284,10 +247,7 @@ def main() -> None:
         "historical_outputs_overwritten": False, "final_styled_manuscript_figures_generated": False,
     }
     (OUT / "run_manifest.json").write_text(json.dumps(run_manifest, indent=2), encoding="utf-8")
-    readme = """# IGC mechanism revalidation (2026-08-17)
-
-This directory is a new, isolated A→G revalidation run. Historical result directories were read only where the protocol explicitly requested frozen definitions or replay inputs; none were overwritten. See `REVALIDATION_VERDICT.md` for the decision, `qa_report.json` for boundary checks, and the two figure-source directories for clean CSVs and QC-only plots.
-"""
+    readme = '# Residual coordinates and temporal orientation\n\nThe analyses estimate source-disjoint baseline residuals, compare training-derived axes with matched random subspaces, decompose coordinate sign and amplitude, and assess trajectory entry and early-response orientation. See `REVALIDATION_VERDICT.md` for the results, `qa_report.json` for input and split checks, and the figure-source directories for derived tables.\n'
     (OUT / "README.md").write_text(readme, encoding="utf-8")
     files = []
     for path in sorted(p for p in OUT.rglob("*") if p.is_file() and p.name != "output_manifest.csv"):

@@ -1,4 +1,4 @@
-"""Minimal canonical style and layout helpers for the final preprint figures."""
+'Minimal reference style and layout helpers for the final preprint figures.'
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "figures" / "preprint_final"
 
-# Frozen from figures_nature_comm_v4/style/nature_comm_style.json before the
+# fixed from figures_nature_comm_v4/style/nature_comm_style.json before the
 # archival v4 tree was removed from the working release.
 C = {
     "truth": "#2B2B2B",

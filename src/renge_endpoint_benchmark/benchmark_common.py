@@ -114,7 +114,7 @@ def representation(name: str, waves: np.ndarray, response: np.ndarray, static: n
     if name == "Static": return static[source_gene_rows]
     if name == "CorrectLag": return transmission_representations(waves, sources, genes, train)[source_gene_rows]
     if name == "FullDynamic":
-        # Frozen audited descriptor; its PCA basis is fitted on training W23 only.
+        # fixed evaluated descriptor; its PCA basis is fitted on training W23 only.
         x = waves[train, 0]; mean = x.mean(0); _, _, vt = np.linalg.svd(x - mean, full_matrices=False)
         components = vt[:min(8, len(vt))].T.astype(np.float32)
         return full_dynamic_descriptor(waves, sources, genes, train, source_gene_rows, mean, components, seed)

@@ -33,7 +33,7 @@ def _sha256(path: Path) -> str:
 
 def _close(actual: float, expected: float, label: str, atol: float = 5e-7) -> None:
     if not np.isclose(actual, expected, atol=atol, rtol=0):
-        raise RuntimeError(f"Frozen-value mismatch for {label}: {actual} != {expected}")
+        raise RuntimeError(f"fixed-value mismatch for {label}: {actual} != {expected}")
 
 
 def build(input_dir: Path, output_dir: Path) -> None:
@@ -51,11 +51,11 @@ def build(input_dir: Path, output_dir: Path) -> None:
     ]
     missing = [name for name in required if not (input_dir / name).is_file()]
     if missing:
-        raise FileNotFoundError(f"Missing frozen inputs: {missing}")
+        raise FileNotFoundError(f"Missing fixed inputs: {missing}")
 
     verdict = json.loads((input_dir / "verdict.json").read_text(encoding="utf-8"))
     if verdict.get("verdict") != "NATURAL_FLUCTUATION_ANCHOR_NOT_SUPPORTED":
-        raise RuntimeError("Unexpected frozen natural-fluctuation verdict")
+        raise RuntimeError('Unexpected fixed natural-fluctuation result classification')
 
     bootstrap = pd.read_csv(input_dir / "bootstrap_summary.csv")
     control = pd.read_csv(input_dir / "control_cell_audit.csv")
@@ -66,9 +66,9 @@ def build(input_dir: Path, output_dir: Path) -> None:
     zero = pd.read_csv(input_dir / "zero_shot_projection_results.csv")
 
     if int(control.iloc[0].n_control_cells) != 11_485:
-        raise RuntimeError("Control-cell count is not the frozen 11,485")
+        raise RuntimeError('Control-cell count is not the fixed 11,485')
     if int(control.iloc[0].n_common_strict_trans_genes) != 768:
-        raise RuntimeError("Strict-trans response panel is not the frozen 768 genes")
+        raise RuntimeError('Strict-trans response panel is not the fixed 768 genes')
 
     def orientation_mean(estimator: str, truth_space: str) -> pd.Series:
         return _one(
@@ -126,7 +126,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
         & (orientation.truth_space == "q_intervention_residual")
     ].copy()
     if len(resid_targets) != 1_755 or resid_targets.source.nunique() != 1_755:
-        raise RuntimeError("Residualized target table is not the frozen 1,755-source evaluation")
+        raise RuntimeError('Residualized target table is not the fixed 1,755-source evaluation')
     panel_f = pd.DataFrame(
         [
             {
@@ -152,7 +152,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
                 "metric": "Targets with permutation p < 0.05",
                 "estimate_fraction": float((resid_targets.target_permutation_empirical_p_cosine < 0.05).mean()),
                 "null_fraction": 0.05,
-                "definition": "fraction exceeding the frozen 200-permutation target null",
+                "definition": 'fraction exceeding the fixed 200-permutation target null',
                 "n_sources": len(resid_targets),
                 "permutations": 200,
             },
@@ -343,7 +343,7 @@ def build(input_dir: Path, output_dir: Path) -> None:
     (output_dir / "SOURCE_DATA_PROVENANCE.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
-    print(f"PASS: wrote audited Supplementary Figure 5e-h source data to {output_dir}")
+    print(f"PASS: wrote evaluated Supplementary Figure 5e-h source data to {output_dir}")
 
 
 def main() -> None:

@@ -159,7 +159,7 @@ def verify_and_load_folds(pb, sets, outer, genes, sources, source_lookup, panel)
             path = FROZEN / artifacts[key]["path"]
             actual = sha256(path)
             if actual != artifacts[key]["sha256"] or path.stat().st_size != artifacts[key]["bytes"]:
-                raise RuntimeError(f"Frozen artifact integrity mismatch: fold={fold} key={key}")
+                raise RuntimeError(f"fixed artifact integrity mismatch: fold={fold} key={key}")
             verified[key] = path; records.append(record(path))
         checkpoint_hashes.add(artifacts["best_checkpoint"]["sha256"])
         split = json.loads(verified["split_audit"].read_text(encoding="utf-8"))
@@ -177,7 +177,7 @@ def verify_and_load_folds(pb, sets, outer, genes, sources, source_lookup, panel)
         local = {gene: i for i, gene in enumerate(pred_genes)}
         panel_names = genes[panel]
         if any(gene not in local for gene in panel_names):
-            raise RuntimeError(f"Frozen strict-trans gene missing from GEARS prediction fold={fold}")
+            raise RuntimeError(f"fixed strict-trans gene missing from GEARS prediction fold={fold}")
         raw_prediction = raw_prediction[:, [local[gene] for gene in panel_names]]
         query = np.asarray([source_lookup[name] for name in names], int)
         outer_train_indices = np.asarray([source_lookup[name] for name in outer[fold]["train_sources"] if name in source_lookup], int)
@@ -198,7 +198,7 @@ def verify_and_load_folds(pb, sets, outer, genes, sources, source_lookup, panel)
                            "separate_checkpoint_sha256": artifacts["best_checkpoint"]["sha256"],
                            "prediction_sha256": artifacts["oof_predictions"]["sha256"]})
     if all_oof != set(sets["gears_sources"]):
-        raise RuntimeError("Five OOF prediction groups do not exactly cover frozen GEARS-supported sources")
+        raise RuntimeError('Five OOF prediction groups do not exactly cover fixed GEARS-supported sources')
     if len(checkpoint_hashes) != 5:
         raise RuntimeError("Fold checkpoints are not five distinct fitted artifacts")
     return folds, split_rows, records
@@ -308,7 +308,7 @@ def geometry_and_spectrum(folds):
 def provenance_and_split(folds, split_rows, artifact_records, sets):
     convergence = [json.loads((GEARS / "metrics" / f"fold{fold}_convergence.json").read_text(encoding="utf-8")) for fold in range(5)]
     run_provenance = {
-        "created_at": now(), "audit_type": "read-only frozen artifact recovery", "training_or_inference_run": False,
+        "created_at": now(), "audit_type": 'read-only fixed artifact recovery', "training_or_inference_run": False,
         "dataset": {"name": "Replogle et al. 2022 RPE1 CRISPRi", "gears_input_path": str((GEARS / "data" / "rpe1_gears_input.h5ad").relative_to(ROOT)),
                     "n_cells": 206585, "model_gene_universe": 2523, "conditions_including_control": 1752,
                     "frozen_gears_sources": len(sets["gears_sources"]), "primary_strict_trans_genes": len(sets["strict_trans_genes"]),
@@ -316,16 +316,16 @@ def provenance_and_split(folds, split_rows, artifact_records, sets):
         "model": {"name": "GEARS", "official_commit": "f374e43e197b295016d80395d7a54ddb81cc6769",
                   "folds": 5, "separately_fitted_model_per_fold": True, "seed": 17, "epochs": 20,
                   "best_epochs": [item["best_epoch"] for item in convergence],
-                  "checkpoint_selection": "inner-validation frozen strict-trans MSE; outer OOF untouched",
+                  "checkpoint_selection": 'inner-validation fixed strict-trans MSE; outer OOF untouched',
                   "prediction_level": "one source-level mean transcriptome vector per perturbation; GEARS predict averages outputs over control-cell graphs"},
-        "response_definition": {"control": "frozen global pseudobulk control_mean",
+        "response_definition": {"control": 'fixed global pseudobulk control_mean',
                                 "total_response": "predicted/true perturbed state minus global control_mean",
                                 "intervention_residual": "total response minus fold-specific mean response fitted on complete outer-train sources",
-                                "strict_trans_panel": "all measured perturbation-source genes excluded by the frozen main-project panel"},
+                                "strict_trans_panel": 'all measured perturbation-source genes excluded by the fixed main-project panel'},
         "artifact_safety": {"same_model_geometry_only": True, "cross_fold_pairs_used": False,
                             "historical_summary_metrics_geometry_safe": False,
                             "historical_issue": "final_audit_common.py evaluate_oof lines 220-229 stacks five folds then computes one global pdist; ignored here",
-                            "fold_metrics_note": "historical fold rows are same-model safe but used Euclidean pdist; this audit recomputes the manuscript cosine-distance metric"},
+                            "fold_metrics_note": 'historical fold rows are same-model safe but used Euclidean pdist; this analysis recomputes the manuscript cosine-distance metric'},
         "executed_code_evidence": {"training_and_separate_model_loop": "scripts/run_gears_final_audit.py:178-205",
                                    "source_level_prediction_save": "scripts/run_gears_final_audit.py:199-203",
                                    "GEARS_prediction_averaging": "external/GEARS/gears/gears.py:300-361",
@@ -361,7 +361,7 @@ def main_comparison(geometry_rows, standard_rows, spectral_rows):
              "predicted_entropy_effective_rank": spectral["predicted_entropy_effective_rank"],
              "truth_entropy_effective_rank": spectral["truth_entropy_effective_rank"],
              "predicted_pc1_fraction": spectral["predicted_pc1_fraction"],
-             "comparison_note": "Primary GEARS audit: 1751 sources, frozen 768-gene strict-trans panel."}]
+             "comparison_note": 'Primary GEARS analysis: 1751 sources, fixed 768-gene strict-trans panel.'}]
     prior = pd.read_csv(MAIN_AUDIT / "artifact_safe_group_summary.csv")
     for model in ("Transformer", "MLP"):
         item = prior[(prior.dataset == "RPE1_CRISPRi") & (prior.model == model)].iloc[0]
@@ -374,9 +374,9 @@ def main_comparison(geometry_rows, standard_rows, spectral_rows):
                      "predicted_entropy_effective_rank": float(item.prediction_entropy_effective_rank),
                      "truth_entropy_effective_rank": float(item.truth_entropy_effective_rank),
                      "predicted_pc1_fraction": float(item.prediction_pc1_fraction),
-                     "comparison_note": "Descriptive frozen main-audit summary: 1755 sources, 805-gene panel; not numerically panel-matched to GEARS."})
+                     "comparison_note": 'Descriptive fixed main-analysis summary: 1755 sources, 805-gene panel; not numerically panel-matched to GEARS.'})
     rows.append({"dataset": "RPE1_CRISPRi", "model": "scGPT", "status": "PLACEHOLDER_NOT_ACCESSED",
-                 "comparison_note": "Reserved for later frozen scGPT audit; no scGPT file or process was touched."})
+                 "comparison_note": 'Reserved for later fixed scGPT analysis; no scGPT file or process was touched.'})
     return rows
 
 
@@ -421,7 +421,7 @@ def finalize(standard, shared, geometry, spectral, comparison):
                                    "interpretation": "High absolute-state correlation is dominated by shared baseline expression and coexists with incomplete intervention identity."},
                "seen_vs_unseen": "NOT_AVAILABLE", "new_training_or_inference": False,
                "historical_stitched_geometry_excluded": True,
-               "manuscript_safe_interpretation": "On frozen unseen RPE1 perturbations, GEARS retained moderate but incomplete intervention-distance ordering while substantially compressing between-perturbation variance and spectral dimensionality. Thus an established perturbation model can achieve excellent absolute-state correlation without fully preserving intervention-specific geometry; the evidence supports a partial, not complete, replication of intervention geometry compression."}
+               "manuscript_safe_interpretation": 'On fixed unseen RPE1 perturbations, GEARS retained moderate but incomplete intervention-distance ordering while substantially compressing between-perturbation variance and spectral dimensionality. Thus an established perturbation model can achieve excellent absolute-state correlation without fully preserving intervention-specific geometry; the evidence supports a partial, not complete, replication of intervention geometry compression.'}
     atomic_json(OUT / "analysis_summary.json", summary)
 
     figures = OUT / "figures"; figures.mkdir(exist_ok=True)
@@ -437,7 +437,7 @@ def finalize(standard, shared, geometry, spectral, comparison):
     def f(value): return f"{value:.4f}"
     text = f"""{verdict}
 
-# Frozen GEARS intervention-geometry audit
+# fixed GEARS intervention-geometry analysis
 
 ## Answers
 
@@ -453,9 +453,9 @@ All pairwise geometry was computed separately inside each of five held-out group
 
 ## Seen versus unseen
 
-`NOT_AVAILABLE`. The frozen outputs contain only valid outer-OOF predictions. Checkpoints were not loaded to manufacture train predictions.
+`NOT_AVAILABLE`. The fixed outputs contain only valid outer-OOF predictions. Checkpoints were not loaded to manufacture train predictions.
 
-## Manuscript placement
+## Figure correspondence
 
 **SUPPLEMENTARY**, with a short main-text reference if desired. The result is useful established-model validation, but the GEARS panel/source coverage is descriptive rather than exactly matched to the existing MLP/Transformer panel.
 
@@ -466,7 +466,7 @@ All pairwise geometry was computed separately inside each of five held-out group
 No GEARS retraining or inference was performed, and no scGPT file or process was accessed.
 """
     (OUT / "FINAL_VERDICT.md").write_text(text, encoding="utf-8")
-    (OUT / "README.md").write_text("# Frozen GEARS geometry-audit results\n\n`FINAL_VERDICT.md` contains the decision. `run_provenance.json` and `split_audit.json` document artifact integrity and leakage safety. Pairwise geometry is strictly fold-local.\n", encoding="utf-8")
+    (OUT / "README.md").write_text('# fixed GEARS geometry-analysis results\n\n`FINAL_VERDICT.md` contains the decision. `run_provenance.json` and `split_audit.json` document artifact integrity and leakage safety. Pairwise geometry is strictly fold-local.\n', encoding="utf-8")
     return verdict
 
 
@@ -474,7 +474,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     pb, sets, outer, genes, sources, _, source_lookup, panel = load_inputs()
     if set(sets["strict_trans_genes"]) & set(sets["eligible_sources"]):
-        raise RuntimeError("Frozen strict-trans panel unexpectedly includes perturbation-source genes")
+        raise RuntimeError('fixed strict-trans panel unexpectedly includes perturbation-source genes')
     folds, split_rows, artifact_records = verify_and_load_folds(pb, sets, outer, genes, sources, source_lookup, panel)
     provenance_and_split(folds, split_rows, artifact_records, sets)
     standard, shared = standard_and_shared(folds)
@@ -482,11 +482,11 @@ def main():
     comparison = main_comparison(geometry, standard, spectral)
     atomic_csv(OUT / "standard_metrics.csv", standard); atomic_csv(OUT / "shared_response_audit.csv", shared)
     atomic_csv(OUT / "grouped_intervention_geometry.csv", geometry); atomic_csv(OUT / "spectral_geometry_compression.csv", spectral)
-    atomic_csv(OUT / "seen_vs_unseen_geometry.csv", [{"status": "NOT_AVAILABLE", "reason": "Frozen GEARS outputs contain only outer-OOF predictions; no valid matched seen/train predictions exist.", "checkpoint_loaded": False, "inference_run": False}])
+    atomic_csv(OUT / "seen_vs_unseen_geometry.csv", [{"status": "NOT_AVAILABLE", "reason": 'fixed GEARS outputs contain only outer-OOF predictions; no valid matched seen/train predictions exist.', "checkpoint_loaded": False, "inference_run": False}])
     atomic_csv(OUT / "model_geometry_comparison.csv", comparison)
     verdict = finalize(standard, shared, geometry, spectral, comparison)
     atomic_json(OUT / "run_complete.json", {"completed_at": now(), "verdict": verdict, "training_or_inference_run": False, "gpu_used": False, "scgpt_touched": False})
-    print(f"[gears-geometry] complete verdict={verdict}")
+    print(f"[gears-geometry] complete result classification={verdict}")
 
 
 if __name__ == "__main__":

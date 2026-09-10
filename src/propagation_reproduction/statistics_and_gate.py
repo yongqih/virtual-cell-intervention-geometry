@@ -80,7 +80,7 @@ def main() -> None:
     source_bootstrap = pd.DataFrame(source_bootstrap_rows)
     source_bootstrap.to_csv(RESULT_ROOT / "first_responder_source_bootstrap.csv", index=False)
 
-    # Global source-deletion influence audit for CorrectLag - StaticControl.
+    # Global source-deletion influence analysis for CorrectLag - StaticControl.
     base_differences = []
     for split, truth_distance, model_distances in distance_records:
         upper = np.triu_indices(len(split["test"]), 1)

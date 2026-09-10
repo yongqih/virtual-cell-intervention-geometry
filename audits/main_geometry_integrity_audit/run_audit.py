@@ -208,7 +208,7 @@ def replication_groups(directory: str) -> dict[str, list[tuple[np.ndarray, np.nd
 def write_provenance() -> None:
     definitions = {
         "K562_CRISPRi": {
-            "dataset": "Replogle K562 CRISPRi frozen DEVELOPMENT pseudobulk",
+            "dataset": 'Replogle K562 CRISPRi fixed DEVELOPMENT pseudobulk',
             "data": ROOT / "results/directedT_exploration/development_data.npz",
             "code": [ROOT / "identifiability_transformer_bridge.py", ROOT / "mlp_transformer_matched_autopsy.py"],
             "predictions": sorted((ROOT / "results/identifiability_transformer_bridge").glob("_oof_predictions_fold*_seed*.npz")) +
@@ -233,7 +233,7 @@ def write_provenance() -> None:
             "configuration": {"folds": 5, "fold_seed": 1701, "seed": 17, "panel_genes": 512},
         },
         "RPE1_scale": {
-            "dataset": "same frozen RPE1 input and folds",
+            "dataset": 'same fixed RPE1 input and folds',
             "data": ROOT / "results/cross_dataset_replication_rpe1/cache/rpe1_pseudobulk_full.npz",
             "code": [ROOT / "results/model_scale_robustness_rpe1/model_scale_stage3a.py"],
             "predictions": sorted((ROOT / "results/model_scale_robustness_rpe1/predictions").glob("*.npz")),
@@ -296,7 +296,7 @@ def null_artifact_audit() -> pd.DataFrame:
                      "response_distance_pearson": 1.0})
         rows.append({"dataset": name, "scheme": "LOO", "repeat": -1, "evaluation": "CORRECT_within_same_model",
                      "split_seed": -1, "n_sources": n, "response_distance_spearman": 0.0, "response_distance_pearson": 0.0,
-                     "note": "one held-out source per fitted model has no within-model source pair; preregistered constant-null contribution is zero"})
+                     "note": 'one held-out source per fitted model has no within-model source pair; prespecified constant-null contribution is zero'})
         for repeat in range(int(CONFIG["executable_null_audit"]["repeats"])):
             split_seed = int(CONFIG["executable_null_audit"]["base_seed_by_dataset"][name]) + repeat
             rng = np.random.default_rng(split_seed)
@@ -324,7 +324,7 @@ def null_artifact_audit() -> pd.DataFrame:
                          "split_seed": split_seed,
                          "response_distance_spearman": float(np.mean(within)),
                          "response_distance_pearson": 0.0})
-        print(f"  null audit: {name}, sources={n}", flush=True)
+        print(f"  null analysis: {name}, sources={n}", flush=True)
     frame = pd.DataFrame(rows)
     frame.to_csv(OUT / "null_artifact_test.csv", index=False)
     (frame[frame.scheme.eq("repeated_2fold")][["dataset", "repeat", "split_seed"]]
@@ -371,7 +371,7 @@ def recovered_group_audit() -> tuple[pd.DataFrame, pd.DataFrame, dict]:
                 **{column: float(frame[column].mean()) for column in frame.columns
                    if column not in {"dataset", "fold", "model", "evaluation", "n_sources", "n_genes", "response_distance_spearman"}},
                 "bootstrap_unit": "perturbation source within each existing held-out group",
-                "limitation": "five frozen groups; not 50 newly refitted partitions",
+                "limitation": 'five fixed groups; not 50 newly refitted partitions',
             })
             print(f"  grouped recovery: {dataset} {model} rho={summaries[-1]['response_distance_spearman']:.4f}", flush=True)
     detail = pd.DataFrame(rows)
@@ -450,42 +450,7 @@ def scale_audit() -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def write_original_metric_audit() -> None:
-    text = """# Original metric implementation audit
-
-## Finding
-
-The historical outputs contain both safe and unsafe calculations. Filenames were not used as evidence; the executable code and arrays were inspected.
-
-### K562 CRISPRi
-
-- `mlp_transformer_matched_autopsy.py:219-299` builds one source-disjoint five-fold model per fold and computes `response_distance_correlation` inside each held-out fold (`:276-277`). Those rows are artifact-safe.
-- `identifiability_transformer_bridge.py:346-461` uses KFold(5, seed 1701), fits the response mean, feature panel, and model on reference sources, and saves each fold/seed OOF array separately. The stored arrays allow recovery without refitting.
-- Centering is fold-specific: `create_fold_panel` computes `response_mean = delta[reference].mean(0)` and residualizes every response against it. Gene-panel variance is fitted on reference responses. No PCA is involved in the primary K562 response-distance metric; the program PCA in the autopsy is a secondary training-fold diagnostic.
-
-### RPE1 CRISPRi and Norman CRISPRa
-
-- `rpe1_replication_stage1.py:273-309` (and the homologous Norman function) fits the response mean, residual definition, variance-selected panel, and control scalar per training fold.
-- The fold-local rows at `rpe1_replication_stage1.py:557-572` compare only sources predicted by the same fitted model and are artifact-safe.
-- The reported combined rows are not artifact-safe: `common_stacks` (`:511-525`) vertically stacks OOF predictions from five separately fitted models, and `geometry_analysis` (`:528-545`) computes a single pairwise geometry over that stitched cloud. Norman copies this implementation. Cross-fold pairs therefore mix fold-specific intercepts/centering, panels reduced to an intersection, and independently trained parameters.
-- Control references are dataset-global pseudobulk controls. The perturbation response is perturbation pseudobulk minus the common control. The additional response-mean residualization is fold-specific. No response PCA enters the primary metric. Norman logCP10K normalization is fixed before splitting; RPE1 consumes the hosted nonnegative processed expression matrix.
-
-### RPE1 capacity experiment
-
-- `model_scale_stage3a.py:500-562` retains fold-local train and OOF arrays. Lines `528-537` compute train and OOF geometry separately inside each fitted model: safe.
-- The headline `0.743 -> 0.013` was produced by averaging these fold-local rows at `:612-625`; it was **not** obtained from the unsafe combined-cloud row. It is artifact-safe against cross-model stitching.
-- A separate combined OOF geometry is nevertheless written at `:565-608` after `np.vstack` collection across folds; that row is unsafe and is not used in this audit.
-- Inner-validation selection, response means, gene panels, and program PCA are training-fold-only. Outer OOF was not used for early stopping. Train groups were much larger than OOF groups, so this audit additionally produces fixed-seed train subsets matched to each OOF group size.
-
-## Exact distance and spectrum definitions
-
-- Original response distance: row L2 normalization followed by cosine `pdist`, then Spearman correlation of condensed pair vectors (`rpe1_replication_stage1.py:110-117`).
-- Direct loci: primary fold metrics use a strict-trans mask that excludes every measured perturbation-source gene, not merely the two genes for each pair.
-- Rank spectra: matrices are centered across perturbations before SVD. This audit reports conventional variance weights (`s^2 / sum(s^2)`) consistently for PC thresholds, participation ratio, and entropy effective rank; the original RPE1 helper used singular-value weights only for its entropy rank while using squared weights for the other quantities.
-
-## What can and cannot be recovered
-
-All manuscript-critical fitted-model arrays can be evaluated inside their five original held-out groups without retraining. They cannot honestly be turned into 50 new grouped source partitions: each source has a valid prediction only from its assigned fitted fold. The 50-repeat requirement is therefore executable for the null audit only. Model CIs use perturbation-source multinomial weights over unique within-group pairs and must be read as recovery uncertainty conditional on the five frozen fits, not as a 50-refit replication.
-"""
+    text = '# Grouped intervention-geometry calculation\n\nPredictions are compared within each independently fitted model. Response means, variance-selected gene panels and model parameters use training interventions only. The strict-trans mask excludes measured perturbation-target genes. RPE1 uses the processed nonnegative expression matrix; Norman uses logCP10K normalization. Control-relative responses use matched pseudobulk controls, with additional response-mean centering within each training fold.\n\nFor the primary geometry metric, response vectors are row-L2-normalized, cosine distances are calculated within each held-out group, and predicted and observed distance ranks are compared by Spearman correlation. Cross-model concatenation is retained only as an artifact control because independently fitted models can differ in offsets, centering and parameters.\n\nSpectral summaries center the response matrix across interventions and use squared singular-value weights for component thresholds, participation ratio and entropy effective rank. The capacity comparison evaluates training and held-out interventions within the same fitted model, with training groups subsampled to match held-out group size.\n\nConfidence intervals describe uncertainty conditional on the five fitted prediction groups. Null simulations include 50 repeated partitions; these simulations do not create additional independent model fits.\n'
     (OUT / "original_metric_audit.md").write_text(text, encoding="utf-8")
 
 
@@ -578,11 +543,11 @@ def write_verdict(grouped: pd.DataFrame, scale: pd.DataFrame, null: pd.DataFrame
         overall = "MAIN_GEOMETRY_CLAIM_MODIFIED"
     text = f"""{overall}
 
-# Main-paper intervention-geometry integrity audit
+# Main-paper intervention-geometry integrity analysis
 
-The qualitative unseen-intervention compression conclusion survives recovery, but the manuscript-critical OOF numbers must be replaced by within-fitted-model grouped estimates. RPE1/Norman combined-cloud rows mixed independently fitted models and are invalid for the primary geometry claim. The RPE1 Large train-to-OOF headline was already based on fold-local rows and survives group-size matching.
+Within-model grouped estimates show compression of unseen-intervention geometry. Cross-model concatenation mixes predictions from independently fitted models and is excluded from the primary geometry calculation. The RPE1 capacity comparison uses within-model estimates with matched group sizes.
 
-| Claim | Verdict | Artifact-safe effect size (95% source-bootstrap CI) |
+| Claim | result classification | Artifact-safe effect size (95% source-bootstrap CI) |
 |---|---|---|
 | A. Naive cross-model stitching creates geometry artifact | **{claim_a}** | LOO source-ignorant null: naive rho {loo_naive.response_distance_spearman.mean():.3f} [1.000, 1.000]; correct grouped contribution {loo_correct.response_distance_spearman.mean():.3f} [0.000, 0.000] |
 | B. K562 unseen geometry compression | **{b}** | Transformer rho {rb.response_distance_spearman:.3f} [{rb.spearman_ci_low:.3f}, {rb.spearman_ci_high:.3f}], variance ratio {rb.between_perturbation_variance_ratio:.3f}, PC1 {rb.prediction_pc1_fraction:.3f} vs truth {rb.truth_pc1_fraction:.3f} |
@@ -590,19 +555,19 @@ The qualitative unseen-intervention compression conclusion survives recovery, bu
 | D. Norman unseen geometry compression | **{d}** | Transformer rho {rd.response_distance_spearman:.3f} [{rd.spearman_ci_low:.3f}, {rd.spearman_ci_high:.3f}], variance ratio {rd.between_perturbation_variance_ratio:.3f}, PC1 {rd.prediction_pc1_fraction:.3f} vs truth {rd.truth_pc1_fraction:.3f} |
 | E. RPE1 Large seen-to-unseen gap | **{e}** | matched train {large.matched_train_geometry:.3f} [{large.matched_train_ci_low:.3f}, {large.matched_train_ci_high:.3f}] vs OOF {large.artifact_safe_oof_geometry:.3f} [{large.oof_ci_low:.3f}, {large.oof_ci_high:.3f}]; gap {large.matched_train_minus_oof:.3f} [{large.gap_ci_low:.3f}, {large.gap_ci_high:.3f}] |
 
-## Required interpretation
+## Interpretation
 
 - Claim A: **{claim_a}**. The null uses no held-out source feature. LOO exclusion alone makes fold intercepts an exact anti-scaled copy of the centered held-out response, yielding spurious stitched geometry.
-- Claim B: **{b}**. K562's principal matched-autopsy calculation was already fold-local; the audit recomputed it from saved arrays and added source-level uncertainty.
+- Claim B: **{b}**. K562's principal matched-diagnostic analysis calculation was already fold-local; the analysis recomputed it from saved arrays and added source-level uncertainty.
 - Claim C: **{c}**. Replace the historical RPE1 combined-cloud rho {float(pd.read_csv(ROOT / 'results/cross_dataset_replication_rpe1/geometry/response_distance_geometry.csv').iloc[1].response_distance_spearman):.3f} with the grouped estimate above.
 - Claim D: **{d}**. Replace the historical Norman combined-cloud rho {float(pd.read_csv(ROOT / 'results/cross_dataset_replication_norman/geometry/response_distance_geometry.csv').iloc[1].response_distance_spearman):.3f} with the grouped estimate above. Failures are not softened if its small 20-source folds yield wide uncertainty.
 - Claim E: **{e}**. The prior 0.743 -> 0.013 comparison was fold-local, not a stitched-cloud artifact. The matched-group estimate above is the comparable replacement and identifies a generalization gap, not a capacity failure.
 
 ## Limits
 
-This is a recovery audit conditional on five frozen fitted folds. It does **not** claim the requested >=50 independent grouped refits were performed. Fifty repeated two-fold splits were run only for the executable null. All model CIs resample perturbation sources within each frozen held-out group using pair weights; they do not represent refit-to-refit variability. No checkpoint was trained, no hyperparameter was changed, no sealed test was opened, and no CD4/RENGE/GEARS/scGPT artifact was touched.
+This is a recovery analysis conditional on five fixed fitted folds. It does **not** claim the requested >=50 independent grouped refits were performed. Fifty repeated two-fold splits were run only for the executable null. All model CIs resample perturbation sources within each fixed held-out group using pair weights; they do not represent refit-to-refit variability. No checkpoint was trained, no hyperparameter was changed, no sealed test was opened, and no CD4/RENGE/GEARS/scGPT artifact was touched.
 
-Audit rules frozen before re-evaluation: `{rules}`
+analysis rules fixed before re-evaluation: `{rules}`
 """
     (OUT / "FINAL_VERDICT.md").write_text(text, encoding="utf-8")
 
@@ -618,9 +583,9 @@ def main() -> None:
     null = null_artifact_audit()
     print("[Task A 4/7] Recovering same-model grouped geometry from stored OOF predictions.", flush=True)
     detail, grouped, _ = recovered_group_audit()
-    print("[Task A 5/7] Running matched-size RPE1 Tiny/Medium/Large train-vs-OOF audit.", flush=True)
+    print('[Task A 5/7] Running matched-size RPE1 Tiny/Medium/Large train-vs-OOF analysis.', flush=True)
     _, scale = scale_audit()
-    print("[Task A 6/7] Generating diagnostic figures and final verdict.", flush=True)
+    print('[Task A 6/7] Generating diagnostic figures and final result classification.', flush=True)
     write_historical_comparison(grouped, scale)
     make_figures(null, grouped, scale); write_verdict(grouped, scale, null)
     metadata = {"created_at": now(), "status": "COMPLETE", "no_retraining": True,

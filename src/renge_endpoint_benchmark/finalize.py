@@ -147,7 +147,7 @@ The training-mean endpoint obtains response Pearson {shared[(shared.target == 'a
 
 ## Scope
 
-All 100 held-out groups reuse the audited 50x2 source-disjoint splits. Each group is predicted by one model, all selection is training-only, and no stitched LOO geometry, GPU model, new architecture, CD4 data, or Markov retuning was used.
+All 100 held-out groups reuse the evaluated 50x2 source-disjoint splits. Each group is predicted by one model, all selection is training-only, and no stitched LOO geometry, GPU model, new architecture, CD4 data, or Markov retuning was used.
 """
     (RESULT_ROOT / "FINAL_VERDICT.md").write_text(md, encoding="utf-8")
     (RESULT_ROOT / "README.md").write_text("# RENGE endpoint benchmark\n\nSee `FINAL_VERDICT.md`, `analysis_summary.json`, tables, and `figures/`.\n", encoding="utf-8")
@@ -156,7 +156,7 @@ All 100 held-out groups reuse the audited 50x2 source-disjoint splits. Each grou
     for path in sorted(p for p in RESULT_ROOT.rglob("*") if p.is_file() and p.name != "output_manifest.json"):
         files.append({"path": path.relative_to(RESULT_ROOT).as_posix(), "bytes": path.stat().st_size, "sha256": sha256(path)})
     atomic_json(RESULT_ROOT / "output_manifest.json", {"verdict": verdict, "files": files})
-    print(f"[endpoint] verdict: {verdict}")
+    print(f"[endpoint] result classification: {verdict}")
 
 
 if __name__ == "__main__": main()

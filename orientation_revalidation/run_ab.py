@@ -456,7 +456,7 @@ def load_k562() -> tuple[list[str], np.ndarray, np.ndarray, list[np.ndarray], pd
     append_input_manifest(
         [
             {"path": str(npz_path), "bytes": npz_path.stat().st_size, "sha256": sha256_file(npz_path), "role": "K562 response matrix"},
-            {"path": str(network_path), "bytes": network_path.stat().st_size, "sha256": sha256_file(network_path), "role": "K562 frozen signed network"},
+            {"path": str(network_path), "bytes": network_path.stat().st_size, "sha256": sha256_file(network_path), "role": 'K562 fixed signed network'},
         ]
     )
     pd.DataFrame({"gene": np.asarray(genes)[response_mask], "included": True}).to_csv(OUT / "k562_response_gene_manifest.csv", index=False)
@@ -577,7 +577,7 @@ def summarize_with_ci(summary: pd.DataFrame, boot: pd.DataFrame) -> pd.DataFrame
 
 
 def run_k562() -> dict[str, object]:
-    print("[A/B K562] loading frozen response/network assets", flush=True)
+    print('[A/B K562] loading fixed response/network assets', flush=True)
     names, y, incoming, folds, split = load_k562()
 
     def features(feature_sources: np.ndarray, samples: np.ndarray) -> np.ndarray:
@@ -637,7 +637,7 @@ def run_k562() -> dict[str, object]:
 
 
 def run_jiang() -> dict[str, object]:
-    print("[A/B Jiang] parsing/reusing frozen DE archive", flush=True)
+    print('[A/B Jiang] parsing/reusing fixed DE archive', flush=True)
     archive = Path(CONFIG["jiang"]["archive"])
     append_input_manifest(
         [{"path": str(archive), "bytes": archive.stat().st_size, "sha256": sha256_file(archive), "role": "Jiang primary DE archive"}]
@@ -920,14 +920,14 @@ def finalize(k: dict[str, object], j: dict[str, object]) -> None:
     )
     manifest = f"""# Figure 4 orientation-code source manifest
 
-- Frozen master seed: `{MASTER_SEED}`.
+- fixed master seed: `{MASTER_SEED}`.
 - Residual axes: uncentered SVD of outer-training source-disjoint OOF residuals only.
 - Held responses enter only oracle coefficient/sign scoring after axis freeze.
 - Ridge alpha selected by inner source-disjoint residual MSE.
 - Random-subspace nulls: {RANDOM_REPS} per outer group and q.
 - K562 response genes exclude all eligible perturbation-source genes.
 - Jiang primary pathways: IFNB, IFNG, INS; response genes are complete across all sources/contexts and exclude pathway source genes.
-- Experiment A verdict: `{a_verdict}`.
+- Experiment A result classification: `{a_verdict}`.
 - Experiment B verdict: `{b_verdict}`.
 """
     (fig4 / "fig4_source_manifest.md").write_text(manifest, encoding="utf-8")

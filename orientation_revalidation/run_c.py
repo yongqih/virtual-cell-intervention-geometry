@@ -1,4 +1,4 @@
-"""Isolated replay of the frozen clean synthetic directional capacity control."""
+'Isolated replay of the fixed clean synthetic directional capacity control.'
 from __future__ import annotations
 
 import importlib.util
@@ -21,7 +21,7 @@ def load_frozen_module():
     script = SOURCE / "synthetic_directional_control.py"
     spec = importlib.util.spec_from_file_location("frozen_synthetic_directional_control", script)
     if spec is None or spec.loader is None:
-        raise RuntimeError(f"Cannot load frozen script: {script}")
+        raise RuntimeError(f"Cannot load fixed script: {script}")
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
@@ -56,7 +56,7 @@ def main() -> None:
 
     metadata = json.loads((DEST / "run_metadata.json").read_text(encoding="utf-8"))
     provenance = {
-        "execution": "isolated replay of frozen historical implementation",
+        "execution": 'isolated replay of fixed historical implementation',
         "source_script": str((SOURCE / "synthetic_directional_control.py").resolve()),
         "source_script_sha256": sha256_file(SOURCE / "synthetic_directional_control.py"),
         "historical_results_read": False,

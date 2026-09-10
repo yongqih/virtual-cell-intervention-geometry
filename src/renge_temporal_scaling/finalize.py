@@ -104,7 +104,7 @@ def main():
 
   md=f"""{verdict}
 
-# RENGE temporal-depth versus static-breadth scaling audit
+# RENGE temporal-depth versus static-breadth scaling analysis
 
 Evidence classification: `{classification}`
 
@@ -122,9 +122,9 @@ Neither static breadth nor full temporal depth shows a clear monotonic deployabl
 
 N=20 is infeasible without reducing the held-out group below five sources; N=18 is the largest honest geometry comparison. All conditions use fixed ridge alpha 100, training-only temporal descriptors, identical held-out groups, and one model per group. No GPU or new architecture was used.
 """
-  (RESULT_ROOT/"FINAL_VERDICT.md").write_text(md,encoding="utf-8");(RESULT_ROOT/"README.md").write_text("# RENGE temporal scaling audit\n\nSee `FINAL_VERDICT.md`, `analysis_summary.json`, scaling tables, and `figures/`.\n",encoding="utf-8")
+  (RESULT_ROOT/"FINAL_VERDICT.md").write_text(md,encoding="utf-8");(RESULT_ROOT/"README.md").write_text('# RENGE temporal scaling analysis\n\nSee `FINAL_VERDICT.md`, `analysis_summary.json`, scaling tables, and `figures/`.\n',encoding="utf-8")
   files=[]
   for path in sorted(p for p in RESULT_ROOT.rglob("*") if p.is_file() and p.name!="output_manifest.json"):files.append({"path":path.relative_to(RESULT_ROOT).as_posix(),"bytes":path.stat().st_size,"sha256":sha256(path)})
-  atomic_json(RESULT_ROOT/"output_manifest.json",{"verdict":verdict,"files":files});print(f"[temporal-scaling] verdict: {verdict}")
+  atomic_json(RESULT_ROOT/"output_manifest.json",{"verdict":verdict,"files":files});print(f"[temporal-scaling] result classification: {verdict}")
 
 if __name__=="__main__":main()

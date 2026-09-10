@@ -234,7 +234,7 @@ def main() -> None:
 
 # Decision
 
-The frozen CorrectLag prediction contains weak but real unseen-source W23 geometry, yet its free rollout collapses. The prespecified diagnostics do **not** support the proposed explanation that predicted W23 is a conventionally off-manifold state. Predicted W23 is actually closer than true held-out W23 to the training W23 PCA/kNN manifold, and every training-only projection tested fails to rescue W45 geometry. The stronger explanation is inaccurate biological direction/program composition in the first wave; this conclusion is diagnostic, not a deployable correction.
+The fixed CorrectLag prediction contains weak but real unseen-source W23 geometry, yet its free rollout collapses. The prespecified diagnostics do **not** support the proposed explanation that predicted W23 is a conventionally off-manifold state. Predicted W23 is actually closer than true held-out W23 to the training W23 PCA/kNN manifold, and every training-only projection tested fails to rescue W45 geometry. The stronger explanation is inaccurate biological direction/program composition in the first wave; this conclusion is diagnostic, not a deployable correction.
 
 ## Seven claims
 
@@ -246,7 +246,7 @@ The frozen CorrectLag prediction contains weak but real unseen-source W23 geomet
 | 4. Predicted W23 is farther off the training manifold | **{claim4}** | Opposite result: predicted-minus-true composite off-manifold score {off_composite.point_delta:.4f}, CI [{off_composite.ci_low:.4f}, {off_composite.ci_high:.4f}]. PCA reconstruction and kNN distance are also smaller for predicted W23. |
 | 5. Training-only projection selectively rescues rollout | **{claim5}** | Primary PCA projection changes W23 geometry by {pca_w23.point_delta:.4f}, CI [{pca_w23.ci_low:.4f}, {pca_w23.ci_high:.4f}], and W45 by {pca_w45.point_delta:.4f}, CI [{pca_w45.ci_low:.4f}, {pca_w45.ci_high:.4f}]. No fixed secondary projection rescues W45. |
 | 6. Good intervention geometry alone is insufficient | **{claim6}** | A consistent gene shuffle retains W23 strict-trans geometry rho {shuffle_initial.initial_strict_trans_geometry_rho.mean():.4f}, while destroying W23 coordinate accuracy and reducing W34 per-response Pearson by {shuffle_w34_accuracy.point_delta:.4f}, CI [{shuffle_w34_accuracy.ci_low:.4f}, {shuffle_w34_accuracy.ci_high:.4f}]. Geometry preservation therefore does not imply a biologically valid state, even though W45 geometry itself was surprisingly robust to these transforms. |
-| 7. Propagator is more sensitive off manifold | **{claim7}** | The frozen propagator is affine, so its Jacobian is state-independent. Predicted-versus-true finite-difference amplification differs by only {relative_fd:.2%}; source-bootstrap absolute delta {finite_one.point_delta:.6f}, CI [{finite_one.ci_low:.6f}, {finite_one.ci_high:.6f}]. |
+| 7. Propagator is more sensitive off manifold | **{claim7}** | The fixed propagator is affine, so its Jacobian is state-independent. Predicted-versus-true finite-difference amplification differs by only {relative_fd:.2%}; source-bootstrap absolute delta {finite_one.point_delta:.6f}, CI [{finite_one.ci_low:.6f}, {finite_one.ci_high:.6f}]. |
 
 ## Rollout decomposition
 
@@ -264,17 +264,12 @@ The frozen CorrectLag prediction contains weak but real unseen-source W23 geomet
 
 ## Recommended next experiment (not executed)
 
-Prioritize **better first-wave inference targeted at direction/program composition**, evaluated with the same grouped source-disjoint geometry and coordinate-level endpoints. Do not begin with manifold projection: the primary off-manifold hypothesis and all fixed projection rescues failed. Robust/noise-trained propagation is also lower priority because the frozen affine propagator showed no state-specific Jacobian instability.
+Prioritize **better first-wave inference targeted at direction/program composition**, evaluated with the same grouped source-disjoint geometry and coordinate-level endpoints. Do not begin with manifold projection: the primary off-manifold hypothesis and all fixed projection rescues failed. Robust/noise-trained propagation is also lower priority because the fixed affine propagator showed no state-specific Jacobian instability.
 
 No GPU architecture, attention model, CD4 analysis, or GO/PPI/GRN expansion was run.
 """
     (RESULT_ROOT / "FINAL_VERDICT.md").write_text(verdict, encoding="utf-8")
-    readme = """# RENGE dynamic-validity results
-
-Independent Task B diagnostic outputs. `FINAL_VERDICT.md` is the scientific decision; `analysis_summary.json` provides machine-readable key numbers, `bootstrap_geometry_contrasts.csv` and `source_level_bootstrap_statistics.csv` contain confidence intervals, and `figures/` contains diagnostic plots.
-
-The completed propagation reproduction is a frozen, read-only upstream input. No new GPU architecture was trained.
-"""
+    readme = '# RENGE dynamic-validity results\n\nIndependent Task B diagnostic outputs. `FINAL_VERDICT.md` is the scientific decision; `analysis_summary.json` provides machine-readable key numbers, `bootstrap_geometry_contrasts.csv` and `source_level_bootstrap_statistics.csv` contain confidence intervals, and `figures/` contains diagnostic plots.\n\nThe completed propagation reproduction is a fixed, read-only upstream input. No new GPU architecture was trained.\n'
     (RESULT_ROOT / "README.md").write_text(readme, encoding="utf-8")
     manifest = []
     for path in sorted(item for item in RESULT_ROOT.rglob("*") if item.is_file() and item.name != "output_manifest.json"):

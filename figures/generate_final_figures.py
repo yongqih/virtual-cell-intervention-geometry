@@ -112,7 +112,7 @@ def natural_fluctuation_source_dir() -> Path:
         if candidate.is_dir() and required.issubset({path.name for path in candidate.iterdir()}):
             return candidate
     raise FileNotFoundError(
-        "Audited Supplementary Figure 5e-h source data was not found; "
+        'evaluated Supplementary Figure 5e-h source data was not found; '
         "set AI4SCI_NATURAL_SOURCE_DATA to the released derived-data directory"
     )
 
@@ -278,7 +278,7 @@ def fig3():
     pca=pd.read_csv(ROOT/"results/final/response_basis/canonical_pca_cumulative_variance.csv")
     ax=axes["b"];ax.plot(pca.n_components,pca.cumulative_explained_variance,color=C["transformer"])
     key=pca[pca.n_components.isin([8,16,32,64])];ax.scatter(key.n_components,key.cumulative_explained_variance,color=C["transformer"],s=22)
-    ax.set(xlabel="Number of response PCs",ylabel="Cumulative variance",title="Canonical response basis");ax.set_xlim(1,128);ax.set_ylim(.2,1.02);b.clean(ax);b.label(ax,"b");stash("Figure3","b",pca)
+    ax.set(xlabel="Number of response PCs",ylabel="Cumulative variance",title='reference response basis');ax.set_xlim(1,128);ax.set_ylim(.2,1.02);b.clean(ax);b.label(ax,"b");stash("Figure3","b",pca)
 
     oracle=pd.read_csv(ROOT/"results/nature_comm_figure_derivations/k562_response_basis_curve_summary.csv")
     ax=axes["c"];ax.fill_between(oracle.components,oracle.heldout_oracle_reconstruction_pearson_min,oracle.heldout_oracle_reconstruction_pearson_max,color=PRED,alpha=.16,lw=0);ax.plot(oracle.components,oracle.heldout_oracle_reconstruction_pearson_mean,color=PRED)
@@ -504,7 +504,7 @@ def supplementary5():
     pca=pd.read_csv(ROOT/"results/final/response_basis/canonical_pca_cumulative_variance.csv");oracle=pd.read_csv(ROOT/"results/nature_comm_figure_derivations/k562_response_basis_curve_summary.csv")
     ax["a"].plot(pca.n_components,pca.cumulative_explained_variance,color=PRED,label="Explained variance");ax["a"].plot(oracle.components,oracle.heldout_oracle_reconstruction_pearson_mean,color=GEARS,label="Held-out oracle")
     for k in (8,16,32,64):ax["a"].axvline(k,color=GRID,lw=.55,zorder=0)
-    ax["a"].set_xlim(1,128);ax["a"].set_ylim(.2,1);ax["a"].set_xticks([1,8,16,32,64,128]);ax["a"].set_xlabel("Number of response PCs");ax["a"].set_ylabel("Fraction / Pearson");ax["a"].set_title("Canonical response basis and oracle ceiling");ax["a"].legend(frameon=False,ncol=2);b.clean(ax["a"]);b.label(ax["a"],"a")
+    ax["a"].set_xlim(1,128);ax["a"].set_ylim(.2,1);ax["a"].set_xticks([1,8,16,32,64,128]);ax["a"].set_xlabel("Number of response PCs");ax["a"].set_ylabel("Fraction / Pearson");ax["a"].set_title('reference response basis and oracle ceiling');ax["a"].legend(frameon=False,ncol=2);b.clean(ax["a"]);b.label(ax["a"],"a")
 
     align=pd.read_csv(ROOT/"results/cross_dataset_replication_rpe1/state_intervention/pairwise_geometry_alignment.csv");ident=align[(align.record_type=="summary")&(align.panel=="primary_common_strict_trans")].copy()
     ident["display_label"]=ident.representation.replace({"ControlProfilePCA64":"Control PCA64"})
@@ -595,7 +595,7 @@ def supplementary8():
     markov_summary=json.loads((ROOT/"results/renge_markov_autopsy_v2/analysis_summary.json").read_text(encoding="utf-8"));mk=pd.DataFrame(markov_summary["models"]["deployable"]);mk["label"]=mk.model.str.replace("Persistent","",regex=False).str.strip().replace({"DirectEndpoint":"Direct endpoint"});_forest(ax["c"],mk,"label","response_distance_rho",colors=[BASE,PRED,FAIL,FAIL],markers=["s","o","^","v"],xlabel="R5 grouped geometry",title="Deployable Markov formulations");b.label(ax["c"],"c")
     comp=pd.read_csv(ROOT/"results/renge_markov_autopsy_v2/geometry_compression_autopsy.csv");comp=comp[comp.scope=="deployable"].groupby("model",as_index=False).agg(response_distance_rho=("response_distance_rho","mean"),between_variance_ratio=("between_variance_ratio","mean"));comp["label"]=comp.model.str.replace("Persistent","",regex=False).str.replace("DirectEndpoint","Direct",regex=False)
     for (_,z),c,m in zip(comp.iterrows(),[BASE,PRED,FAIL,FAIL],["s","o","^","v"]):ax["d"].scatter(z.between_variance_ratio,z.response_distance_rho,color=c,marker=m,s=30,label=z.label)
-    ax["d"].axhline(0,color=GRID,lw=.8);ax["d"].set_xlabel("Between-intervention variance ratio");ax["d"].set_ylabel("R5 grouped geometry");ax["d"].set_title("Rollout compression autopsy");ax["d"].legend(frameon=False,fontsize=5.5);b.clean(ax["d"]);b.label(ax["d"],"d")
+    ax["d"].axhline(0,color=GRID,lw=.8);ax["d"].set_xlabel("Between-intervention variance ratio");ax["d"].set_ylabel("R5 grouped geometry");ax["d"].set_title('Rollout geometry and variance');ax["d"].legend(frameon=False,fontsize=5.5);b.clean(ax["d"]);b.label(ax["d"],"d")
     stash("SupplementaryFigure8","a",q);stash("SupplementaryFigure8","b",rescue);stash("SupplementaryFigure8","c",mk);stash("SupplementaryFigure8","d",comp);save(fig,"SupplementaryFigure8")
 
 
@@ -640,49 +640,8 @@ def write_source_data_and_registry():
 
 
 def write_audits():
-    OUT.mkdir(parents=True,exist_ok=True)
-    pd.DataFrame([
-        {"old_figure":"SupplementaryFigure2","old_panel":"all","source_file":"figures/preprint_corrected/SupplementaryFigure2/SupplementaryFigure2.svg","scientific_question":"Artifact-safe intervention geometry","new_figure":"SupplementaryFigure2","new_panel":"a-b","action":"REDRAW","notes":"Rebuilt from fold-local grouped estimates and executable stitched-cloud null."},
-        {"old_figure":"SupplementaryFigure7","old_panel":"all","source_file":"figures/preprint_corrected/SupplementaryFigure7/SupplementaryFigure7.svg","scientific_question":"Capacity, response basis and source identifiability","new_figure":"SupplementaryFigure5","new_panel":"a-b","action":"MERGE","notes":"Merged canonical response-basis/oracle and architecture evidence."},
-        {"old_figure":"SupplementaryFigure10","old_panel":"all","source_file":"figures/preprint_corrected/SupplementaryFigure10/SupplementaryFigure10.svg","scientific_question":"Structural rescue and real-prior boundary","new_figure":"SupplementaryFigure6","new_panel":"a-b","action":"MERGE","notes":"Matched-generator positive control kept distinct from real-prior boundary."},
-        {"old_figure":"SupplementaryFigure12","old_panel":"all","source_file":"figures/preprint_corrected/SupplementaryFigure12/SupplementaryFigure12.svg","scientific_question":"Temporal signal, reliability and first-wave controls","new_figure":"SupplementaryFigure7","new_panel":"a-b","action":"MERGE","notes":"Long categories converted to horizontal layouts."},
-        {"old_figure":"SupplementaryFigure13","old_panel":"all","source_file":"NOT_PRESENT_IN_REPOSITORY","scientific_question":"Trajectory entry and temporal rescue","new_figure":"SupplementaryFigure8","new_panel":"a","action":"MERGE","notes":"Task-referenced historical number; no historical figure file was present. Frozen audit values were used."},
-        {"old_figure":"SupplementaryFigure16","old_panel":"all","source_file":"figures/preprint_corrected/SupplementaryFigure16/SupplementaryFigure16.svg","scientific_question":"Markov formulation autopsy","new_figure":"SupplementaryFigure8","new_panel":"b","action":"MERGE","notes":"Combined with trajectory-entry rescue evidence."},
-        {"old_figure":"SupplementaryFigure17","old_panel":"all","source_file":"figures/preprint_corrected/SupplementaryFigure17/SupplementaryFigure17.svg","scientific_question":"Internal generalization-axis factorial","new_figure":"SupplementaryFigure9","new_panel":"a-b","action":"REDRAW","notes":"All fixed five-seed curves retained with dominant mean lines."},
-        {"old_figure":"SupplementaryFigure18","old_panel":"all","source_file":"NOT_PRESENT_IN_REPOSITORY","scientific_question":"Internal generalization controls","new_figure":"SupplementaryFigure9","new_panel":"a-b","action":"MERGE","notes":"Task-referenced historical number; no historical figure file was present. Related frozen factorial controls were merged."},
-        {"old_figure":"SupplementaryFigure19","old_panel":"all","source_file":"figures/preprint_corrected/SupplementaryFigure19/SupplementaryFigure19.svg","scientific_question":"External Frangieh replication and robustness","new_figure":"SupplementaryFigure10","new_panel":"a-b","action":"REDRAW","notes":"Sparse wide comparison replaced by compact horizontal forests."},
-    ]).to_csv(OUT/"SUPPLEMENTARY_RENUMBER_MAP.csv",index=False)
-    citation_text=(
-        "# Manuscript supplementary citation replacements\n\n"
-        "Final manuscript citations must use only Supplementary Figures 1–10.\n\n"
-        "| Historical citation | Final citation | Action |\n|---|---|---|\n"
-        "| Supplementary Fig. 2 | Supplementary Fig. 2 | Retain number; cite the redrawn artifact-safe figure. |\n"
-        "| Supplementary Fig. 7 | Supplementary Fig. 5 | Replace. |\n"
-        "| Supplementary Fig. 10 | Supplementary Fig. 6 | Replace. |\n"
-        "| Supplementary Fig. 12 | Supplementary Fig. 7 | Replace. |\n"
-        "| Supplementary Fig. 13 | Supplementary Fig. 8 | Replace if present in the manuscript. |\n"
-        "| Supplementary Fig. 16 | Supplementary Fig. 8 | Replace. |\n"
-        "| Supplementary Figs. 17 and 18 | Supplementary Fig. 9 | Replace and merge. |\n"
-        "| Supplementary Fig. 19 | Supplementary Fig. 10 | Replace. |\n\n"
-        "Repository search found stale historical numbers in `figures/preprint_corrected/FIGURE_REGENERATION_REPORT.md`, "
-        "`scripts/preprint_corrected_figures/build_corrected_figures.py`, and the archival block copied into "
-        "`scripts/preprint_finalization/build_preprint_final.py`. These are provenance/archival implementation records, not the final manuscript; they were inventoried rather than silently rewritten.\n")
-    (OUT/"MANUSCRIPT_SUPPLEMENTARY_CITATION_REPLACEMENTS.md").write_text(citation_text,encoding="utf-8")
-    (OUT/"SUPPLEMENTARY_CITATION_REPLACEMENTS.md").write_text(citation_text,encoding="utf-8")
-    color_text=(
-        "# Color and style audit\n\nStatus: **PASS**.\n\n"
-        "Canonical mappings are fixed: truth #2B2B2B; GEARS #4F8F7B; scGPT #8B79A8; prediction #5F8FB5; "
-        "failure/incorrect structure #B65F42; baseline #A3A3A3; grid #DEDEDE. The scGPT purple was recovered from "
-        "the v4 style registry. Figure 6 uses dark direction blue #3E6F91 for RPE1 → K562, replacing the pale v4 "
-        "direction blue only where necessary to distinguish overlapping confidence bands from GEARS green. "
-        "Color is paired with marker shape and/or line style throughout; continuous numeric ticks are unrotated.\n")
-    (OUT/"COLOR_STYLE_AUDIT.md").write_text(color_text,encoding="utf-8")
-    (OUT/"FINAL_COLOR_AUDIT.md").write_text(color_text,encoding="utf-8")
-    reserved={"Figure1":["a","b","e"],"Figure4":["a"],"Figure5":["a","g"],"Figure6":["a","f"]}
-    (OUT/"FINAL_FIGURE_VISUAL_QA.md").write_text(
-        "# Final figure visual QA\n\nStatus: PENDING_RENDER_INSPECTION\n\n"
-        + "\n".join(f"- {fig} panels {', '.join(panels)}: INTENTIONAL_RESERVED_CONCEPTUAL_SPACE" for fig,panels in reserved.items())
-        + "\n\nReserved regions are exempt from empty-width failure but must remain clean and non-overlapped.\n",encoding="utf-8")
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "FIGURE_METHODS.md").write_text('# Figure generation from derived response summaries\n\nThe base collection uses saved response estimates, grouped geometry, variance and spectral summaries. Pairwise estimates are calculated within fitted models. Source-panel tables and their registry are written alongside the figures.\n\nThe publication collection also includes the residual-coordinate and temporal figures generated by `figure_revision/build_revision_figures.py`, and Supplementary Figure 11 generated by `figure_revision/build_figure_cleanup_round2.py`. See the package README for assembly instructions.\n', encoding="utf-8")
 
 
 def main():
