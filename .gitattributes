@@ -1,0 +1,2 @@
+# Preserve recorded file bytes for reproducibility-manifest validation.
+* -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
