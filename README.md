@@ -19,7 +19,7 @@ The primary plotting environment used Python 3.12.14 and Matplotlib 3.11.1. Figu
 
 ## Recalculate the results
 
-Extract the matching **v2.0.0 data archive** next to the repository. The [Zenodo data collection](https://doi.org/10.5281/zenodo.21963287) and [software collection](https://doi.org/10.5281/zenodo.21963186) provide the version history. Select the record bearing version 2.0.0 once the deposits are published. Source tables for plotting are also available directly in this tag.
+Extract the matching **v2.0.0 data archive** next to the repository. The published v2.0.0 archives are available on Zenodo for the [source data](https://doi.org/10.5281/zenodo.23990921) and [analysis code](https://doi.org/10.5281/zenodo.23990945). Source tables for plotting are also available directly in this tag.
 
 ```sh
 python nc_release/replay.py ../data --table point_estimates.csv
