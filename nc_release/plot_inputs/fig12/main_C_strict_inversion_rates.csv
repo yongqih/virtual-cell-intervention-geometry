@@ -1,0 +1,8 @@
+quality_mode,model,qualified_triplets,inverted_triplets,inversion_rate,eligible_unique_A,inverted_unique_A,eligible_unique_AC,inverted_unique_AC,eligible_unique_members,inverted_unique_members,folds_with_eligible_triplets,folds_with_inversions,fold_unweighted_mean_inversion_rate,query_unweighted_mean_inversion_rate,model_display
+all_three_four_criteria,GEARS,274,17,0.06204379562043796,20,7,40,13,29,14,3,2,0.04458062965633261,0.04992451690821256,GEARS
+all_three_four_criteria,scGPT,123,5,0.04065040650406504,17,4,28,5,30,7,4,2,0.025119617224880382,0.026610644257703077,scGPT
+all_three_four_criteria,Scouter,393,5,0.01272264631043257,26,4,41,4,53,9,5,2,0.02755952380952381,0.03865877712031558,Scouter
+all_three_four_criteria,CellFlow,28,0,0.0,7,0,11,0,17,0,3,0,0.0,0.0,CellFlow
+all_three_four_criteria,PerturbDiff,517,32,0.061895551257253385,31,10,52,14,62,23,5,3,0.05965130759651307,0.056658950202343794,PerturbDiff
+all_three_four_criteria,State-ST-GenePT,109,0,0.0,19,0,22,0,39,0,5,0,0.0,0.0,State
+all_three_four_criteria,TxPert-public,798,35,0.043859649122807015,38,15,96,20,59,26,4,2,0.036748216106014274,0.048842243227902496,TxPert

@@ -1,0 +1,6 @@
+fold,queries,readouts,original_input_genes,original_copied_readouts,added_genes,union_input_genes,all_required_unique_source_identities,all_required_source_identities_present,all_union_measurements_finite,max_shared_cache_rounding_difference
+0,287,570,3536,395,175,3711,439,True,True,3.295005934766948e-07
+1,289,568,3536,393,175,3711,440,True,True,3.3293453283178565e-07
+2,287,569,3536,393,176,3712,439,True,True,3.387520219888529e-07
+3,285,568,3536,393,175,3711,433,True,True,3.3018222600489366e-07
+4,284,572,3536,398,174,3710,433,True,True,3.387520219888529e-07

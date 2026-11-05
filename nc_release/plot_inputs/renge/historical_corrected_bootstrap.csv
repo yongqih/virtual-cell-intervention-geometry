@@ -1,0 +1,9 @@
+left,right,delta,ci_low,ci_high,valid_draws,total_draws,unit
+CorrectLag,Static,0.11649123761810332,-0.10256862826611171,0.3388070443507616,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking
+TrueEntry,PredictedEntry,0.2864833234758608,0.08081703261528281,0.4328425838627666,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking
+TeacherForced,PredictedEntry,0.3856540938331984,0.13825189658659082,0.5487816006726804,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking
+TrueEntry,SelectedBaseline,0.028477194447343646,-0.09560410893624496,0.14670241190696698,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking
+TrueEntry,Persistence,0.0408385569654226,-0.113615597966251,0.1901175509194008,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking
+TrueEntry,Ridge,0.01021601118616039,-0.1793153472088974,0.17348589247996604,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking
+TrueEntry,ScrambledDirection,0.02144175310593216,-0.06383003203403537,0.10376551241146845,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking
+TrueEntry,MagnitudeOnly,0.2449570023674501,-0.039117956115386515,0.43833745497197635,1959,2000,23 global KO identities reused across all 100 historical held groups; exact reranking

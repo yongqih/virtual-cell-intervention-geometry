@@ -1,0 +1,9 @@
+model,fold,kind,pair,query,partner,cosine_distance,neighbor_rank,representation
+PerturbDiff,0,Observed,AC,PRPF31,LSM4,0.1524786068390466,5.0,training-reference residual
+PerturbDiff,0,Observed,AB,PRPF31,EIF3I,0.4146065890714074,13.0,training-reference residual
+PerturbDiff,0,Predicted,AC,PRPF31,LSM4,0.4897490274883144,46.0,training-reference residual
+PerturbDiff,0,Predicted,AB,PRPF31,EIF3I,0.0749397526009032,5.0,training-reference residual
+GEARS,0,Observed,AC,UQCRH,UQCRC1,0.2649674072202576,9.0,training-reference residual
+GEARS,0,Observed,AB,UQCRH,PHF10,0.5434046427955759,119.0,training-reference residual
+GEARS,0,Predicted,AC,UQCRH,UQCRC1,0.337091637384281,169.0,training-reference residual
+GEARS,0,Predicted,AB,UQCRH,PHF10,0.0129657169150828,76.0,training-reference residual

@@ -1,0 +1,3 @@
+model,fold,A,B,C,half_positive_fraction,stress_removed_half_positive_fraction,technical_partitions,technical_halves,original_positive_halves,stress_removed_positive_halves
+PerturbDiff,0,PRPF31,EIF3I,LSM4,1.0,1.0,20,40,40,40
+GEARS,0,UQCRH,PHF10,UQCRC1,1.0,1.0,20,40,40,40

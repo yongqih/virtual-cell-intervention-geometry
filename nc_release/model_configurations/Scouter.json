@@ -1,0 +1,15 @@
+{
+  "seed": 24,
+  "batch_size": 256,
+  "loss_gamma": 0.0,
+  "loss_lambda": 0.5,
+  "learning_rate": 0.001,
+  "scheduler_gamma": 0.9,
+  "max_epochs": 40,
+  "patience": 5,
+  "min_delta": 0.001,
+  "gradient_clip_norm": 1.0,
+  "precision": "float32",
+  "checkpoint": "minimum inner-validation loss",
+  "held_out_tuning": false
+}

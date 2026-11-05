@@ -1,0 +1,17 @@
+model,fold,A,B,C,representation,kind,distance_margin,source_field
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Original residual,Observed,0.2621279822323608,m_true
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Original residual,Predicted,-0.4148092748874111,m_pred
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Control-relative,Observed,0.1667645931007786,control_relative_m_true
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Control-relative,Predicted,-0.267752614706218,control_relative_m_pred
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Stress removed,Observed,0.2692887409666282,stress_removed_m_true
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Stress removed,Predicted,-0.4286279439527335,stress_removed_m_pred
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Training-mean direction removed,Observed,0.3425585966293255,training_mean_direction_removed_m_true
+PerturbDiff,0,PRPF31,EIF3I,LSM4,Training-mean direction removed,Predicted,-0.5766193788237903,training_mean_direction_removed_m_pred
+GEARS,0,UQCRH,PHF10,UQCRC1,Original residual,Observed,0.2784372355753183,m_true
+GEARS,0,UQCRH,PHF10,UQCRC1,Original residual,Predicted,-0.3241259204691982,m_pred
+GEARS,0,UQCRH,PHF10,UQCRC1,Control-relative,Observed,0.0153486274229897,control_relative_m_true
+GEARS,0,UQCRH,PHF10,UQCRC1,Control-relative,Predicted,-0.0848018340508618,control_relative_m_pred
+GEARS,0,UQCRH,PHF10,UQCRC1,Stress removed,Observed,0.3062728946703633,stress_removed_m_true
+GEARS,0,UQCRH,PHF10,UQCRC1,Stress removed,Predicted,-0.3259961138805619,stress_removed_m_pred
+GEARS,0,UQCRH,PHF10,UQCRC1,Training-mean direction removed,Observed,0.0986322975337944,training_mean_direction_removed_m_true
+GEARS,0,UQCRH,PHF10,UQCRC1,Training-mean direction removed,Predicted,-0.1331338256993289,training_mean_direction_removed_m_pred

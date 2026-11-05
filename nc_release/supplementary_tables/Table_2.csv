@@ -1,0 +1,12 @@
+Analysis or predictor,Query information at prediction,Information used for fitting,Role
+Genetic zero-shot model,Target identity and the model's allowed prior features,Other intervention responses in the original training partition,Predict the recipient response for an unseen target
+Diagnostic true projection,Measured recipient query response,Fixed training-output basis,Quantify representational capacity after observing the outcome
+Shared coordinate calibration,Fixed predicted query coordinates,Paired predicted and measured coordinates of training interventions,Test a common correction of model coordinates
+Natural-association map,Target-gene association with readout genes in unperturbed cells,Paired training interventions and recipient coordinates,Test observational information under the matched mapping rule
+Measured input map,Same target's measured K562 response,Paired original-training interventions and recipient coordinates,Predict recipient coordinates in a fixed model space
+Temporal predicted entry,Drug annotations,Other drugs' trajectories and annotation–state relationships,Predict early state and propagate to the endpoint
+Temporal measured entry,Same drug's measured early proteome,Other drugs' trajectories or endpoint pairs,Propagate an observed starting state
+Sparse Ridge or residual transfer,Same target's measured source response,A sparse set of source–recipient paired interventions,Reuse a measured intervention library
+Copy with mean correction,Same target's measured source response,Mean source–recipient difference among paired training interventions,Separate source-information value from learned adaptation
+Two-hop reference transfer,Same target's measured terminal-source response,Two disjoint sets of paired interventions through RPE1,Transfer without direct terminal-context pairs
+Zero-shot bridge route,Target identity and TxPert prior features,Fixed TxPert plus the same final context map,Predict the intermediate response before context transfer

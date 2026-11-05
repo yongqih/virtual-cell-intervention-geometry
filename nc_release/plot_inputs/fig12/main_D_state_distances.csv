@@ -1,0 +1,5 @@
+kind,pair,query,partner,cosine_distance,neighbor_rank,representation,context,dose_uM
+Observed,AC,Tucidinostat,Panobinostat,0.5491834599720751,27.0,control-relative response with own-side controls,HOP62,0.5
+Observed,AB,Tucidinostat,Temsirolimus,0.7364517942066907,432.0,control-relative response with own-side controls,HOP62,0.5
+Predicted,AC,Tucidinostat,Panobinostat,0.4867312481930844,525.0,control-relative response with own-side controls,HOP62,0.5
+Predicted,AB,Tucidinostat,Temsirolimus,0.4256882256624912,159.0,control-relative response with own-side controls,HOP62,0.5

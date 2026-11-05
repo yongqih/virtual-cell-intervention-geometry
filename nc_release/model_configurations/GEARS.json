@@ -1,0 +1,8 @@
+{
+  "epochs": 20,
+  "batch_size": 32,
+  "lr": 0.001,
+  "weight_decay": 0.0005,
+  "scheduler_gamma": 0.5,
+  "seed": 17
+}

@@ -1,8 +1,0 @@
-python=3.12.13
-platform=Windows-11-10.0.26200-SP0
-numpy=2.5.2
-pandas=3.0.5
-scipy=1.18.0
-scikit-learn=1.9.0
-jax=0.4.35
-jax_device=TFRT_CPU_0

@@ -1,0 +1,64 @@
+{
+  "model": {
+    "model_type": "txpert",
+    "no_basal_model": false,
+    "no_pert_model": false,
+    "hidden_dim": 512,
+    "latent_dim": 64,
+    "dropout": 0.2,
+    "use_batch_norm": true,
+    "use_layer_norm": false,
+    "omit_cntr": false,
+    "mse_weight": 1,
+    "slow_benchmark": false,
+    "cntr_model": {
+      "model_type": "mlp",
+      "rank": 16,
+      "decode_latent": false,
+      "use_batch_norm": true,
+      "use_layer_norm": false
+    },
+    "pert_model": {
+      "model_type": "exphormer",
+      "layer_type": "exphormer_w_mpnn",
+      "num_layers": 4,
+      "hidden_dim": 128,
+      "skip": "skip_cat",
+      "dropout": 0.1,
+      "num_heads": 2,
+      "concat": true,
+      "add_self_loops": true,
+      "expander_degree": 3,
+      "add_reverse_edges": true,
+      "use_edge_weight": false,
+      "use_struc_feat": false,
+      "pos_enc": "none",
+      "union_edge_type": "multihot",
+      "edge_feat_map_type": "linear"
+    }
+  },
+  "graph": {
+    "graph_cfg": {
+      "graph0": {
+        "graph_type": "string",
+        "reduce2perts": true,
+        "norm_weights": true,
+        "mode": "top_20"
+      },
+      "graph1": {
+        "graph_type": "go",
+        "reduce2perts": true,
+        "norm_weights": false,
+        "mode": "top_20"
+      }
+    }
+  },
+  "epochs": 50,
+  "lr": 0.001,
+  "min_lr": 0.0,
+  "batch_size": 64,
+  "weight_decay": 0.0,
+  "precision": "float32",
+  "initialization": "independent random, no pretrained weights",
+  "checkpoint_metric": "validation_target_macro_batch_matched_pearson_delta_all_model_genes"
+}

@@ -1,0 +1,22 @@
+{
+  "depth": 8,
+  "heads": 8,
+  "hidden": 512,
+  "cell_set_size": 32,
+  "batch_cells": 128,
+  "steps": 1000,
+  "learning_rate": 0.002,
+  "optimizer": "upstream AdamW and cosine schedule",
+  "EMA_decay": 0.99,
+  "EMA_interval": 10,
+  "max_steps": 40000,
+  "validation_frequency": 1000,
+  "minimum_steps": 10000,
+  "patience": 6,
+  "seed": 42,
+  "checkpoint": "minimum inner-validation native diffusion loss",
+  "fixed_scale": 10.0,
+  "prediction_reverse_steps": 1000,
+  "DDIM_eta": 0.0,
+  "guidance_weight": 1.0
+}

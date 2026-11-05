@@ -1,0 +1,8 @@
+Model,q80,Deficit (%) with simultaneous 95% CI,Excess concentration (percentage points)
+GEARS,1–2,"52.96 [49.48, 56.44]",46.80
+scGPT,2–9,"40.54 [38.61, 42.47]",26.66
+Scouter,6,"20.15 [18.39, 21.90]",14.66
+CellFlow,1,"64.93 [62.46, 67.40]",64.64
+PerturbDiff,2–3,"35.35 [32.49, 38.22]",31.53
+State,1–2,"49.49 [47.38, 51.60]",37.88
+TxPert,3–4,"36.47 [34.31, 38.64]",22.60
