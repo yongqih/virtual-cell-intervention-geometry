@@ -1,6 +1,6 @@
 # Intervention geometry compression reveals a measurement strategy for virtual cells
 
-This repository contains the analysis and figure code for the study by Yongqi Huang, Hanzhi Wang and Parker Wilson. Version 2.0.0 covers six main figures, twenty supplementary figures and four supplementary tables. The figure source tables are included in the repository. Individual predictions, measured responses and paired bootstrap draws are distributed in the companion data archive.
+This repository contains the analysis and figure code for the study by Yongqi Huang, Hanzhi Wang and Parker Wilson. Version 2.0.0 covers six main figures, twenty supplementary figures and Supplementary Tables 1–4. The current repository also includes the Ahlmann-Eltze baseline and Supplementary Table 5. The figure source tables are included in the repository. Individual predictions, measured responses and paired bootstrap draws for v2.0.0 are distributed in the companion data archive.
 
 ## Reproduce the figures
 
@@ -38,7 +38,44 @@ The first command calculates 381 point estimates from saved arrays, including re
 | 5, S11–S13 | How does a measured early response affect later relationship prediction? | temporal, plot_inputs/protein, plot_inputs/renge |
 | 6, S14–S20 | How can reference measurements support direct and indirect context transfer? | transfer, bridges, triplet_repair, multicontext, plot_inputs/fig6 |
 
-Supplementary Tables 1 and 2 describe the cohorts, readouts, fold sizes and the information supplied to each predictor. All four tables are available in `nc_release/supplementary_tables/`.
+Supplementary Tables 1 and 2 describe the cohorts, readouts, fold sizes and the information supplied to each predictor. All five tables are available in [nc_release/supplementary_tables/](nc_release/supplementary_tables/).
+
+## Reproduce Supplementary Table 5
+
+[Supplementary Table 5](nc_release/supplementary_tables/Table_5.csv) compares the no-anchor Ahlmann-Eltze linear model, frozen TxPert and 32-pair residual transfer. The two zero-shot predictors used all 1,225–1,254 RPE1 training interventions in each fold. The transfer map used 32 interventions measured in both cell lines for calibration and one measured K562 response per new target. All three methods were evaluated on the same 1,432 held-out RPE1 interventions.
+
+| Method | Global ρ | Top-10 | CA |
+| --- | ---: | ---: | ---: |
+| Ahlmann-Eltze linear model | 0.050 | 0.069 | 0.535 |
+| TxPert | 0.255 | 0.143 | 0.650 |
+| Residual transfer | 0.389 | 0.202 | 0.651 |
+
+**Rebuild the table.** From the repository root, the following command reconstructs the estimates and confidence intervals from the [fold scores](nc_release/ahlmann_eltze/fold_scores.csv) and 1,000 paired bootstrap draws included here. It requires only NumPy and pandas.
+
+```sh
+python nc_release/ahlmann_eltze/table5.py --out results/Table_5.csv
+```
+
+**Recalculate from predictions.** Extract `IGC_data_v2.0.0.zip` so that `../data` points to its `data/` directory. The [Zenodo data archive](https://doi.org/10.5281/zenodo.23990921) supplies the measured RPE1 responses, frozen comparator predictions, calibration panels and intervention resampling weights. This repository supplies the five sets of [Ahlmann-Eltze predictions](nc_release/ahlmann_eltze/predictions). For the full calculation, use a separate Python 3.10 environment with the analysis dependencies:
+
+```sh
+python -m pip install -r nc_release/ahlmann_eltze/requirements.txt
+python nc_release/ahlmann_eltze/score.py ../data results/from_predictions
+```
+
+This writes `Table_5.csv`, fold-level scores and paired bootstrap draws. Global ρ and Top-10 use the same scoring genes and references as Fig. 6b. CA compares each predicted response with measured candidates in its fold. The table reports pointwise 95% intervals for individual methods and simultaneous 95% intervals for paired gains over Ahlmann-Eltze. Each paired interval family covers ρ and Top-10 under both scoring references and CA.
+
+**Refit the linear baseline.** We used the single-gene model in which both embeddings are learned from RPE1 training expression. Each fold selects only its training conditions and unperturbed controls before PCA. The unseen gene is identified by its expression across these training conditions. The fit uses 10 principal components per embedding, ridge penalty 0.1 on each side and seed 1, following the [paper](https://doi.org/10.1038/s41592-025-02772-6) and [authors’ implementation](https://github.com/const-ae/linear_perturbation_prediction-Paper/blob/bfa6eeea2bd145a1af2ec0127a2e808cc38456a9/benchmark/src/run_linear_pretrained_model.R).
+
+The input files under [profiles/](nc_release/ahlmann_eltze/profiles) store the expression sums and cell counts needed to reconstruct each condition mean for all 8,749 genes. The four files partition conditions in their original order. The fit was run on CPU with R 4.6.1, Matrix 1.7-5 and irlba 2.3.7. With Rscript on your PATH, run:
+
+```sh
+Rscript -e "install.packages(c('Matrix', 'irlba'), repos='https://cloud.r-project.org')"
+python nc_release/ahlmann_eltze/fit.py ../data results/refitted
+python nc_release/ahlmann_eltze/score.py ../data results/from_refit --predictions results/refitted
+```
+
+To refit one fold, add `--fold 0` to the fit command. Both scoring commands use the published TxPert and residual-transfer predictions. To regenerate the condition profiles from the original [scPertEval RPE1 matrix](https://github.com/Virtual-Cell-Research-Community/scPertEval/blob/main/docs/user-guide/datasets.md), run `python nc_release/ahlmann_eltze/prepare_profiles.py replogle22rpe1_processed_complete.h5ad results/profiles` and pass `--profiles results/profiles` to the fit command. The processed H5AD used here has SHA-256 `25cb5bad6cd7abd834baa191ffa4b0b414dbfe3f5c6b927999380d2d4bc3ae3d`.
 
 ## Upstream data
 

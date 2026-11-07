@@ -1,0 +1,16 @@
+section,method,metric,estimate,ci_low,ci_high,interval
+Performance,Ahlmann-Eltze linear model,rho,0.0498345806333,0.0342348931797,0.06675211046,Pointwise 95%
+Performance,Ahlmann-Eltze linear model,top10,0.0685131282405,0.0631269539208,0.07452251902,Pointwise 95%
+Performance,Ahlmann-Eltze linear model,CA,0.535129973747,0.520478551359,0.550768269808,Pointwise 95%
+Performance,TxPert,rho,0.254961862919,0.219675904557,0.289998323835,Pointwise 95%
+Performance,TxPert,top10,0.142893166592,0.134234543224,0.152120446797,Pointwise 95%
+Performance,TxPert,CA,0.650165024765,0.635486631687,0.665101665071,Pointwise 95%
+Performance,Residual transfer,rho,0.38939652851,0.35484357385,0.421608831931,Pointwise 95%
+Performance,Residual transfer,top10,0.201766791122,0.192608079685,0.211981506551,Pointwise 95%
+Performance,Residual transfer,CA,0.650846413211,0.638218018417,0.663662352505,Pointwise 95%
+Gain over Ahlmann-Eltze,TxPert,rho,0.205127282285,0.160717497683,0.249537066887,Simultaneous 95%
+Gain over Ahlmann-Eltze,TxPert,top10,0.074380038352,0.0635909262375,0.0851691504665,Simultaneous 95%
+Gain over Ahlmann-Eltze,TxPert,CA,0.115035051018,0.0978688920066,0.13220121003,Simultaneous 95%
+Gain over Ahlmann-Eltze,Residual transfer,rho,0.339561947877,0.295693162452,0.383430733301,Simultaneous 95%
+Gain over Ahlmann-Eltze,Residual transfer,top10,0.133253662881,0.121771378012,0.144735947751,Simultaneous 95%
+Gain over Ahlmann-Eltze,Residual transfer,CA,0.115716439464,0.1016642464,0.129768632528,Simultaneous 95%
