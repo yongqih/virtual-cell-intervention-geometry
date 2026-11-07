@@ -42,7 +42,8 @@ Supplementary Tables 1 and 2 describe the cohorts, readouts, fold sizes and the 
 
 ## Upstream data
 
-- Replogle Perturb-seq in RPE1, K562 and Jurkat: [Replogle et al.](https://doi.org/10.1016/j.cell.2022.05.013).
+- The K562 and RPE1 Perturb-seq data come from [Replogle et al. (2022)](https://doi.org/10.1016/j.cell.2022.05.013).
+- The Jurkat Perturb-seq data come from [Nadig et al. (2025)](https://doi.org/10.1038/s41588-025-02169-3) and are available from GEO under [GSE264667](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE264667).
 - Tahoe drug-response predictions: [State study and released resources](https://doi.org/10.1016/j.cell.2026.07.052).
 - Time-resolved drug perturbation proteomics: [ProteinTalks](https://doi.org/10.1038/s41586-026-11001-9).
 - Genetic time course: [RENGE](https://doi.org/10.1038/s42003-023-05594-4), [GSE213069](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE213069).
