@@ -1,6 +1,6 @@
 # Intervention geometry compression reveals a measurement strategy for virtual cells
 
-This repository contains the analysis and figure code for the study by Yongqi Huang, Hanzhi Wang and Parker Wilson. Version 2.0.0 covers six main figures, twenty supplementary figures and Supplementary Tables 1–4. The current repository also includes the Ahlmann-Eltze baseline and Supplementary Table 5. The figure source tables are included in the repository. Individual predictions, measured responses and paired bootstrap draws for v2.0.0 are distributed in the companion data archive.
+This repository contains the analysis and figure code for the study by Yongqi Huang, Hanzhi Wang and Parker Wilson. Version 2.0.0 covers six main figures, twenty supplementary figures and Supplementary Tables 1–4. The current repository also includes the rank-eight projection comparisons in Supplementary Fig. 7 and the Ahlmann-Eltze baseline in Supplementary Table 5. The figure source tables are included in the repository. Individual predictions, measured responses and paired bootstrap draws are distributed in the companion data archive.
 
 ## Reproduce the figures
 
@@ -15,11 +15,11 @@ python nc_release/render_figures.py F1 F3 F4 F6 --out rendered
 
 Omit the figure names to draw all 26 figures. Supplementary figures are identified by S1 through S20. The command writes PNG, PDF and SVG files. Each figure runs in its own process. A GPU, network connection and model checkpoints are unnecessary for rendering. Arial was used for the reference figures. Matplotlib uses DejaVu Sans when Arial is unavailable.
 
-The primary plotting environment used Python 3.12.14 and Matplotlib 3.11.1. Figures F3, F4, S6, S8, S9, S10, S13, S16 and S17 were drawn with Python 3.10.20 and Matplotlib 3.10.9. For exact raster comparisons, use the corresponding requirements file (`nc_release/requirements-py310.txt` for the second group). The numerical source tables are common to both environments.
+The primary plotting environment used Python 3.12.14 and Matplotlib 3.11.1. Figures F3, F4, S6, S7, S8, S9, S10, S13, S16 and S17 use Matplotlib 3.10.9. For exact raster comparisons, use the corresponding Python 3.10 requirements file (`nc_release/requirements-py310.txt` for this group). The numerical source tables are common to both environments.
 
 ## Recalculate the results
 
-Extract the matching **v2.0.0 data archive** next to the repository. The published v2.0.0 archives are available on Zenodo for the [source data](https://doi.org/10.5281/zenodo.23990921) and [analysis code](https://doi.org/10.5281/zenodo.23990945). Source tables for plotting are also available directly in this tag.
+Extract the **v2.0.0 data archive** next to the repository. The published v2.0.0 archives are available on Zenodo for the [source data](https://doi.org/10.5281/zenodo.23990921) and [analysis code](https://doi.org/10.5281/zenodo.23990945). Use the plotting tables in the current checkout to reproduce the revised figures.
 
 ```sh
 python nc_release/replay.py ../data --table point_estimates.csv
@@ -33,12 +33,29 @@ The first command calculates 381 point estimates from saved arrays, including re
 | --- | --- | --- |
 | 1, S1–S3 | Do accurate individual responses preserve intervention relationships? | benchmark, triplets, spectrum, plot_inputs/fig12 |
 | 2, S4–S5, Tables 3–4 | How much reproducible response variation do predictions retain? | benchmark, spectrum, subspaces |
-| 3, S6–S7 | Do training predictions span the same response directions across architectures? | subspaces, plot_inputs/fig34 |
+| 3, S6–S7 | How much response structure do model subspaces retain, and how accurately do models assign coordinates? | benchmark, subspaces, plot_inputs/fig34 |
 | 4, S8–S10 | Which inputs place unseen interventions correctly within a fixed response space? | coordinate_inputs, subspaces, plot_inputs/fig34 |
 | 5, S11–S13 | How does a measured early response affect later relationship prediction? | temporal, plot_inputs/protein, plot_inputs/renge |
 | 6, S14–S20 | How can reference measurements support direct and indirect context transfer? | transfer, bridges, triplet_repair, multicontext, plot_inputs/fig6 |
 
 Supplementary Tables 1 and 2 describe the cohorts, readouts, fold sizes and the information supplied to each predictor. All five tables are available in [nc_release/supplementary_tables/](nc_release/supplementary_tables/).
+
+## Reproduce Supplementary Figure 7
+
+Panels a–f use eight axes fitted separately to each model’s predictions for unseen interventions in each fold. Each measured response is projected onto those axes. Global ρ and Top-10 measure recovery of the observed ordering and neighborhoods. CA compares reconstructed expression with the original measured profiles. The model-level analysis relates subspace overlap to each projected score using seven model means, each weighted equally across five folds.
+
+Recalculate the three correlations and their two-sided exact *P* values from the [seven-model table](nc_release/plot_inputs/fig34/s7_seven_model_projections.csv). The test enumerates all 5,040 permutations of the model labels and applies Holm correction across the three endpoints. The [fold scores](nc_release/plot_inputs/fig34/s7_projection_by_fold.csv) and [exact test results](nc_release/plot_inputs/fig34/s7_axis_alignment_tests.csv) are provided alongside the figure inputs.
+
+```sh
+python nc_release/subspace_projections.py --model-scores nc_release/plot_inputs/fig34/s7_seven_model_projections.csv --out results/s7
+```
+
+To recompute the projection scores from the v2.0.0 data archive, use the command below. It also reproduces panels g–j, which compare fixed training axes from GEARS, Scouter, TxPert and measured responses with 1,000 random eight-dimensional subspaces per fold. This comparison uses the two shared folds (339 and 355 held-out interventions) and all 757 scoring genes. Each random draw uses the same held-out responses as the training-axis comparison. The plotted range spans the 2.5th and 97.5th percentiles of the two-fold mean across draws.
+
+```sh
+python nc_release/subspace_projections.py --data ../data --out results/s7
+python nc_release/render_figures.py S7 --out rendered
+```
 
 ## Reproduce Supplementary Table 5
 

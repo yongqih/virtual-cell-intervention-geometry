@@ -129,29 +129,110 @@ def small_title(p,x,y,w,s):p.text(x+w/2,y,s,6.8,ha='center')
 
 
 def supp33():
- p=Page('Supplementary_Figure_7',214)
- p.text(91.5,208,'Unseen-output diagnostics',7.1,ha='center',weight='bold')
- p.text(91.5,200,'q = 8, five folds',6.1,ha='center',color=GREY)
- models=['GEARS','scGPT','Scouter','CellFlow','PerturbDiff','State-ST-GenePT','TxPert-public']
- d=CAP.query('basis_source=="unseen_model_predictions" and q==8')
- al=ALIGN.query('model_basis=="unseen" and biology_basis=="Biology_train" and q==8')
- dim=read('sub_PHASE_A_DIMENSIONALITY.csv')
- specs=[('Biological alignment',al,'overlap',(0,1.05)),('Response energy',d,'held_true_energy',(0,.9)),
-  ('Global ρ',d,'predicted_coordinate_rho',(0,1.08)),('Top-10',d,'predicted_coordinate_top10',(0,.7)),
-  ('Effective rank',dim,'effective_rank',(0,14)),('Variance / truth',dim,'variance_retention_vs_held_truth',(0,1.5))]
- for k,(title,ds,col,ylim) in enumerate(specs):
-  i,j=divmod(k,2);x=28+89*j;y=144-64*i;a=p.ax(x,y,61,40,chr(97+k))
-  p.text(x-25,y+47,chr(97+k),9,weight='bold');small_title(p,x,y+47,61,title)
-  for z,m in enumerate(models):
-   vals=ds[ds.model.eq(m)][col];fold_bar(a,z,vals,BLUE,.62)
-   if k in [2,3]:
-    oc='oracle_global_rho' if k==2 else 'oracle_top10';od=ds[ds.model.eq(m)][oc]
-    a.scatter(np.full(len(od),z)+np.linspace(-.15,.15,len(od)),od,s=9,facecolors=TEAL,edgecolors=INK,lw=.35,zorder=4)
-  a.set(xticks=range(7),xticklabels=[MODEL_LABEL[m] for m in models],ylim=ylim)
-  a.tick_params(axis='x',labelrotation=45,labelsize=5.7);plt.setp(a.get_xticklabels(),ha='right',rotation_mode='anchor');a.yaxis.set_major_locator(MaxNLocator(4));clean(a)
-  log_rows(p,a,ds[ds.model.isin(models)],title)
- for i in range(3):p.rows.append([chr(97+i*2),chr(98+i*2)])
- p.key(27,5,'Predicted coordinates',BLUE);p.key(87,5,'True-projection coordinates',TEAL,marker='o');p.save()
+    p = Page('Supplementary_Figure_7', 200)
+    models = ['GEARS', 'scGPT', 'Scouter', 'CellFlow', 'PerturbDiff', 'State-ST-GenePT', 'TxPert-public']
+    unseen = CAP.query('basis_source == "unseen_model_predictions" and q == 8')
+    alignment = ALIGN.query('model_basis == "unseen" and biology_basis == "Biology_train" and q == 8')
+    dimension = read('sub_PHASE_A_DIMENSIONALITY.csv')
+    edge_blue = '#52768A'
+    edge_teal = '#517C70'
+    amber = '#B57F4F'
+
+    p.text(91.5, 196, 'Response spaces of seven models on unseen interventions', 8.4, ha='center', weight='bold')
+    p.cv.plot(48, 189.5, marker='s', ms=4.3, mfc=BLUE, mec=INK, mew=.5, ls='none')
+    p.text(51, 189.5, 'Model output')
+    p.cv.plot(89, 189.5, marker='o', ms=3.9, mfc=TEAL, mec=edge_teal, mew=.65, ls='none')
+    p.text(92, 189.5, 'Measured projection (c, d)')
+
+    upper = [
+        ('Biological alignment', alignment, 'overlap', (0, 1.06), [0, .5, 1]),
+        ('Response energy', unseen, 'held_true_energy', (0, .82), [0, .4, .8]),
+        ('Global ρ', unseen, 'predicted_coordinate_rho', (0, 1.07), [0, .5, 1]),
+        ('Top-10', unseen, 'predicted_coordinate_top10', (0, .63), [0, .3, .6]),
+        ('Effective rank', dimension, 'effective_rank', (0, 14), [0, 6, 12]),
+        ('Variance / observed', dimension, 'variance_retention_vs_held_truth', (0, 1.55), [0, .75, 1.5]),
+    ]
+    for k, (title, frame, metric, limits, ticks) in enumerate(upper):
+        row, col = divmod(k, 3)
+        x, y, width = 12 + 59 * col, 158 - 34 * row, 48
+        letter = chr(97 + k)
+        ax = p.ax(x, y, width, 22, letter)
+        p.text(x - 8.5, y + 26, letter, 9, weight='bold')
+        small_title(p, x, y + 26, width, title)
+        for pos, model in enumerate(models):
+            part = frame[frame.model.eq(model)].sort_values('fold')
+            assert len(part) == 5
+            values = part[metric].to_numpy()
+            xx = pos + np.linspace(-.15, .15, 5)
+            ax.bar(pos, values.mean(), .66, color=BLUE, edgecolor=INK, lw=.52, zorder=2)
+            ax.scatter(xx, values, s=6.2, fc='white', ec=INK, lw=.43, zorder=4)
+            if metric in ['predicted_coordinate_rho', 'predicted_coordinate_top10']:
+                true_column = 'oracle_global_rho' if k == 2 else 'oracle_top10'
+                ax.scatter(xx, part[true_column], s=7.5, fc=TEAL, ec=edge_teal, lw=.48, zorder=4)
+        ax.set(xticks=range(7), xlim=(-.6, 6.6), yticks=ticks, ylim=limits)
+        ax.tick_params(axis='x', labelbottom=row == 1, length=1.8)
+        if row == 1:
+            ax.set_xticklabels([MODEL_LABEL[m] for m in models], fontsize=5.8, rotation=70,
+                               ha='right', rotation_mode='anchor')
+        clean(ax)
+        log_rows(p, ax, frame[frame.model.isin(models)], title)
+    p.rows.extend([['a', 'b', 'c'], ['d', 'e', 'f']])
+    p.cols.extend([['a', 'd'], ['b', 'e'], ['c', 'f']])
+
+    p.text(91.5, 106, 'Training and random axes on the same held-out interventions', 8.4, ha='center', weight='bold')
+    for xx, label, mark, face, edge in [
+        (23, 'Measured coordinates', 'o', TEAL, edge_teal),
+        (73, 'Predicted coordinates', 's', 'white', edge_blue),
+        (126, 'Random axes', 'D', amber, amber),
+    ]:
+        p.cv.plot(xx, 99, marker=mark, ms=4, mfc=face, mec=edge, mew=.85, ls='none')
+        p.text(xx + 3.3, 99, label)
+
+    measured = read('s7_training_axis_scores.csv').query('scope == "equal_fold_mean"')
+    random = read('s7_random_axis_reference.csv').query('scope == "equal_fold_mean"')
+    fixed = CAP.query('basis_source == "train_model_predictions" and training_panel == "full" and q == 8 and fold < 2')
+    basis_order = ['Random', 'GEARS', 'Scouter', 'TxPert-public', 'Biology']
+    names = ['Random', 'GEARS', 'Scouter', 'TxPert', 'Measured']
+    specs = [
+        ('g', 'Response energy', 'energy', (0, .8), [0, .2, .4, .6, .8], None),
+        ('h', 'Centroid accuracy', 'CA', (.45, 1.0), [.5, .6, .7, .8, .9, 1.0], None),
+        ('i', 'Global ρ', 'rho', (0, 1.02), [0, .25, .5, .75, 1], 'predicted_coordinate_rho'),
+        ('j', 'Top-10', 'top10', (0, .52), [0, .1, .2, .3, .4, .5], 'predicted_coordinate_top10'),
+    ]
+    for k, (letter, title, metric, limits, ticks, predicted) in enumerate(specs):
+        row, col = divmod(k, 2)
+        x, y, width = 22 + col * 89, 55 - row * 44, 66
+        ax = p.ax(x, y, width, 31, letter)
+        p.text(x - 18.5, y + 36, letter, 9, weight='bold')
+        small_title(p, x, y + 36, width, title)
+        for pos, model in enumerate(basis_order):
+            if model == 'Random':
+                ref = random[random.metric.eq(metric)].iloc[0]
+                ax.errorbar(ref['mean'], pos, xerr=[[ref['mean'] - ref.p025], [ref.p975 - ref['mean']]],
+                            fmt='D', ms=4.1, color=amber, mfc=amber, mec=amber, capsize=2.8,
+                            elinewidth=1.35, mew=.85, zorder=4)
+                continue
+            value = measured.loc[measured.basis.eq(model), metric].item()
+            if predicted and model != 'Biology':
+                samples = fixed[fixed.model.eq(model)]
+                assert set(samples.fold) == {0, 1} and len(samples) == 2
+                model_value = samples[predicted].mean()
+                ax.plot([model_value, value], [pos, pos], color='#ACBFC0', lw=1.05, zorder=2)
+                ax.plot(model_value, pos, 's', mfc='white', mec=edge_blue, mew=1, ms=4.2, zorder=4)
+            ax.plot(value, pos, 'o', mfc=TEAL, mec=edge_teal, mew=.7, ms=4.7, zorder=4)
+        ax.set(xlim=limits, xticks=ticks, ylim=(4.6, -.65), yticks=range(5), yticklabels=names)
+        ax.tick_params(axis='y', length=0, pad=3.5)
+        ax.spines['left'].set_visible(False)
+        clean(ax, 'x')
+        if metric == 'CA':
+            ax.axvline(.5, color='#A4A9AB', lw=.7, ls=(0, (3, 2)), zorder=1)
+        log_rows(p, ax, measured[['scope', 'basis', metric]], 'measured_coordinates')
+        log_rows(p, ax, random[random.metric.eq(metric)], 'random_axis_reference')
+        if predicted:
+            log_rows(p, ax, fixed[['model', 'fold', predicted]], 'predicted_coordinates')
+    p.rows.extend([['g', 'h'], ['i', 'j']])
+    p.cols.extend([['g', 'i'], ['h', 'j']])
+    p.save()
 
 def supp41():
  p=Page('Supplementary_Figure_8',224)
@@ -338,7 +419,7 @@ def supp6():
  a=p.ax(34,6,74,31,'coverage');mat=av.pivot(index='model',columns='fold',values='usable_training_vectors').loc[ms]
  cm=LinearSegmentedColormap.from_list('coverage',['#FFFFFF',LIGHTBLUE,TEAL])
  a.imshow(mat.values,aspect='auto',cmap=cm,vmin=0,vmax=1250,interpolation='nearest')
- a.set(xticks=range(5),xticklabels=range(5),yticks=range(7),yticklabels=[MODEL_LABEL[m] for m in ms]);a.tick_params(length=0,labelsize=5.7);a.spines[['left','bottom']].set_visible(False)
+ a.set(xticks=range(5),xticklabels=range(1,6),yticks=range(7),yticklabels=[MODEL_LABEL[m] for m in ms]);a.tick_params(length=0,labelsize=5.7);a.spines[['left','bottom']].set_visible(False)
  for yy in range(7):
   for xx in range(5):a.text(xx,yy,str(int(mat.iloc[yy,xx])),ha='center',va='center',fontsize=5.7,color=INK)
  p.text(113,31,'Complete output folds',6.2,weight='bold');p.text(113,24,'GEARS 3, Scouter 2, TxPert 5',6)

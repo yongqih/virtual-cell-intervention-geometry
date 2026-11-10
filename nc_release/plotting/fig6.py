@@ -103,7 +103,7 @@ def direct_reference(p):
         p.text(18.5,yy,label,6.3,ha='right')
         for c in range(13):
             color=BLUE if c<4 else '#D5DDE0'
-            fill=color if row==0 or c<4 else 'white'
+            fill=color if label=='RPE1' or c<4 else 'white'
             edge=BLUE if c<4 else '#BCC7CC'
             if c==12:fill=query_color if row==0 else 'white';edge=query_color
             p.cv.add_patch(Rectangle((x0+c*pitch,yy-h/2),w,h,fc=fill,ec=edge,lw=.5,
@@ -146,13 +146,13 @@ def resource_bridges(p):
         p.text(left-3 if cols==first else right+3,middle,'50 pairs',6.0,color=INK,
             ha='right' if cols==first else 'left')
 
-    measured=[set(range(19))-second-{1,8,15},first|second,second]
+    rpe1_unpaired = {0, 2, 7, 9, 14, 16, 18}
     for row,(label,yy) in enumerate(zip(['K562','RPE1','Jurkat'],centers)):
         p.text(101,yy,label,6.3,ha='right')
         for c in range(19):
             col=bridge_colors[0] if c in first and row in [0,1] else (
                 bridge_colors[1] if c in second and row in [1,2] else None)
-            fill=col or (neutral_fill if c in measured[row] else 'white')
+            fill=col or (neutral_fill if label == 'RPE1' and c in rpe1_unpaired else 'white')
             edge=col or neutral_edge
             if c==query:
                 fill=query_color if row==0 else 'white';edge=query_color
