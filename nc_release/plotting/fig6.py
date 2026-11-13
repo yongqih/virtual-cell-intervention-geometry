@@ -165,70 +165,8 @@ def resource_bridges(p):
     p.text(x0+query*pitch+w/2,228.8,'Query',6.0,ha='center',color=query_color)
 
 def main():
-    p=Page('Figure_6',248)
-    p.panel('a','Measure interventions, connect contexts',3,242,91.5)
-    p.text(47,232.7,'Direct transfer',6.5,ha='center',weight='bold')
-    p.text(139,232.7,'Sparse bridges',6.5,ha='center',weight='bold')
-    for xx,label,predicted in [(66,'Measured',False),(94,'Predicted',True)]:
-        p.cv.add_patch(Rectangle((xx,236.4),3.7,2.4,fc='white' if predicted else '#D5DDE0',
-            ec='#BCC7CC',lw=.5,ls=(0,(2,1.5)) if predicted else '-'))
-        p.text(xx+5.3,237.6,label,6.0,color='#5E676C')
-    direct_reference(p)
-    resource_bridges(p)
-    p.panel('b','Sparse transfer versus zero-shot',3,185,91.5)
-    for i,(metric,lim) in enumerate([('CA',(0,.8)),('rho',(0,.48)),('top10',(0,.25))]):
-        x=18+59*i;a=p.ax(x,142,43,32,f'b{i}')
-        old.bars(a,old.BENCH[old.BENCH.reference.eq(old.PRIMARY)],['TxPert_frozen','Anchor_Ridge1','ResidualLinearCV'],metric,lim)
-        p.text(x+21.5,177,old.METRIC_NAMES[metric],6.8,ha='center')
-    p.rows.append(['b0','b1','b2'])
-    p.panel('c','Adaptation with matched inputs',3,127,48)
-    p.panel('d','Fewer paired interventions',101,127,143)
-    same=old.read('matched_input_n32.csv');same=same[same.reference.eq(old.PRIMARY)]
-    for i,(metric,lim) in enumerate([('CA',(0,.8)),('rho',(0,.48)),('top10',(0,.28))]):
-        x=12+29*i;a=p.ax(x,92,20,25,f'c{i}')
-        old.bars(a,same,['FullReadout_CopyMean32','ResidualLinearCV_UnionInput32'],metric,lim,['Copy','Residual'])
-        for t in a.get_xticklabels():t.set_rotation(40);t.set_ha('right');t.set_rotation_mode('anchor')
-        p.text(x+10,120,old.METRIC_NAMES[metric],6.5,ha='center')
-    p.rows.append(['c0','c1','c2'])
-    for i,metric in enumerate(['rho','top10']):
-        x=111+39*i;a=p.ax(x,92,28,25,f'd{i}');old.gain_curve(a,metric,mark_thresholds=True)
-        p.text(x+14,120,'Δρ' if i==0 else 'ΔTop-10',6.5,ha='center')
-    p.rows.append(['d0','d1']);p.text(145,83,'Paired interventions',6.1,ha='center')
-    p.key(110,77,'Ridge',BLUE,marker='s');p.key(143,77,'Residual',TEAL,marker='o')
-    p.panel('e','Biological relationship repair',3,70,47)
-    p.panel('f','Sparse bridges versus TxPert route',99,70,140)
-    from biology_art import BiologyArt
-    BiologyArt(p.cv,INK,BLUE,OCHRE).mitochondrion(26,59)
-    for yy in [56,58,60,62]:
-        p.cv.add_patch(Ellipse((70,yy),10,3,fc='#EDF0F1',ec='#9BA6AC',lw=.55))
-        for dx in [-3,0,3]:p.cv.plot([70+dx,70+dx],[yy-.8,yy+.8],color='#ABB4B8',lw=.4)
-    p.cv.add_patch(Ellipse((76,61),3,2.7,angle=30,fc=OCHRE,ec=OCHRE,lw=.4))
-    p.text(24.7,51.5,'COX5A',5.8,ha='right');p.text(26,51.5,'/',5.8,ha='center')
-    p.text(27.3,51.5,'COX7B',5.8,color=BLUE);p.text(70,51.5,'PSMG3',5.8,ha='center',color=OCHRE)
-    old.vector_case(p,26,27,'TxPert_frozen','TxPert');old.vector_case(p,70,27,'ResidualLinearCV','Residual')
-    p.text(47,19,'23/26 previous inversions corrected',6.6,ha='center')
-    p.key(15,11,'Observed',INK);p.key(51,11,'Predicted',INK,(0,(2,2)))
-    primary=table('two_hop','PRIMARY_JOINT_FOUR_ENDPOINT_CI.csv')
-    cp=table('bridge_copy','RESOURCE_SIMULTANEOUS_CI.csv')
-    bridge_blue='#4F788A';copy_grey='#62666D';calibrated_ochre='#BE8D5C'
-    for i,metric in enumerate(['rho','CA']):
-        a=p.ax(121+34*i,17,25,40,f'f{i}');a.axvline(0,color=GREY,lw=.7,ls='--')
-        for j,route in enumerate(['K562_RPE1_Jurkat','Jurkat_RPE1_K562']):
-            r=primary[primary.route.eq(route)&primary.metric.eq(metric)].iloc[0]
-            pt(a,r,metric,j*4,bridge_blue,True,'joint4_low','joint4_high',marker='o',contrast=True)
-            for k,(method,c,marker) in enumerate([('Source_Copy',copy_grey,'s'),
-                    ('Bridge_mean_corrected_Copy',calibrated_ochre,'D')]):
-                r=cp[cp.route.eq(route)&cp.method.eq(method)&cp.metric.eq(metric)].iloc[0]
-                pt(a,r,metric,j*4+k+1,c,True,marker=marker,contrast=True)
-        a.set(ylim=(7,-1),xlim=(-.03,.34),xticks=[0,.15,.3],yticks=[0,1,2,4,5,6],
-              yticklabels=['Two-hop','Copy','Cal. Copy']*2 if i==0 else ['']*6)
-        a.tick_params(axis='y',length=0,pad=3,labelsize=6.0);old.clean(a,'x')
-        a.spines['left'].set_visible(False)
-        p.text(133.5+34*i,62,'Δρ' if i==0 else 'ΔCA',6.6,ha='center')
-    p.rows.append(['f0','f1'])
-    p.text(100,57.3,'K562 → Jurkat',6.2,weight='bold')
-    p.text(100,37.3,'Jurkat → K562',6.2,weight='bold')
-    p.save(crops={'concept':(2,190,181,246),'comparison':(98,10,182,73)})
+    import calibrated_transfer_panels
+    calibrated_transfer_panels.main(sys.modules[__name__])
 
 def summary_panel(p,frame,methods,labels,x,y,w,h,id,metric,colors,lim):
     a=p.ax(x,y,w,h,id)
@@ -238,9 +176,140 @@ def summary_panel(p,frame,methods,labels,x,y,w,h,id,metric,colors,lim):
     a.tick_params(axis='y',length=0);old.clean(a,'x');a.set_xlabel(old.METRIC_NAMES[metric])
     return a
 
+def s14():
+    p=Page('Supplementary_Figure_14',218)
+    p.text(3,213,'Paired interventions and transfer-map selection',8.1,weight='bold')
+    methods=['TxPert_frozen','Anchor_Ridge1','Anchor_RidgeCV','ResidualLinearCV']
+    metrics=['CA','rho','top10']
+    xs=[16,76,136]
+    for row,(k,y) in enumerate([(10,168),(32,118)]):
+        frame=old.read('benchmark_n10.csv') if k==10 else old.BENCH
+        p.text(3,y+35,f'Unscaled maps, {k} paired interventions',7,weight='bold')
+        ids=[]
+        for j,(met,x,upper) in enumerate(zip(metrics,xs,[.82,.49,.26])):
+            tag=f's{row}{j}';ids.append(tag);ax=p.ax(x,y,43,25,tag)
+            old.bars(ax,frame[frame.reference.eq(old.PRIMARY)],methods,met,(0,upper),
+                     labels=['TxPert','Ridge','Ridge CV','Residual'])
+            ax.tick_params(axis='x',labelsize=5.25,pad=2)
+            p.panel(chr(97+row*3+j),old.METRIC_NAMES[met],x-13,y+29,x+21.5)
+        p.rows.append(ids)
+    p.text(3,103,'Unscaled maps across calibration sizes',7,weight='bold')
+    for j,met in enumerate(['rho','top10','CA']):
+        x=xs[j];ax=p.ax(x,68,43,25,f'q{j}')
+        if met=='CA':old.ca_curve(ax)
+        else:old.gain_curve(ax,met,old.SECONDARY,True)
+        ax.set_xlabel('')
+        p.panel(chr(103+j),['Δ global ρ','ΔTop-10','CA'][j],x-13,97,x+21.5)
+    p.rows.append(['q0','q1','q2'])
+    p.key(29,59,'Ridge',BLUE,marker='s');p.key(72,59,'Residual',TEAL,marker='o')
+    p.key(117,59,'TxPert',GREY,(0,(3,2)))
+    p.text(3,53,'Joint versus MSE selection after amplitude calibration',7,weight='bold')
+    vals=pd.read_csv(INPUT/'fig6/calibrated_transfer/joint_selection_gain.csv')
+    for j,(met,x) in enumerate(zip(metrics,xs)):
+        ax=p.ax(x,18,43,25,f'j{j}')
+        rr=vals.loc[vals.metric.eq(met)].sort_values('k')
+        assert len(rr)==30
+        ax.axhline(0,ls='--',lw=.6,color='#858D91')
+        ax.fill_between(rr.k.to_numpy(),rr.simultaneous_low.to_numpy(),rr.simultaneous_high.to_numpy(),
+                        color=TEAL,lw=0,alpha=.28)
+        ax.plot(rr.k,rr.delta,color='#417C70',lw=1.15)
+        sample=rr.loc[rr.k==12].iloc[0];ax.scatter([12],[sample.delta],s=12,color='#417C70',zorder=4)
+        ax.set(xlim=(2,33),xticks=[3,12,22,32],xlabel='Paired interventions')
+        from matplotlib.ticker import MaxNLocator
+        ax.yaxis.set_major_locator(MaxNLocator(4));old.clean(ax)
+        p.panel(chr(106+j),['ΔCA','Δ global ρ','ΔTop-10'][j],x-13,47,x+21.5)
+    p.rows.append(['j0','j1','j2'])
+    p.cols=[[f's0{i}',f's1{i}',f'q{i}',f'j{i}'] for i in range(3)]
+    p.save()
+
+def s16():
+    data=pd.read_csv(INPUT/'fig6/calibrated_transfer/direct_transfer.csv')
+    old.supplement2(data.loc[data.method.eq('Calibrated map')].set_index('metric'))
+
+def s17():
+    from matplotlib.colors import ListedColormap
+    src=INPUT/'fig6/calibrated_transfer'
+    cases=pd.read_csv(src/'triplet_repair_by_case.csv')
+    fixed=pd.read_csv(src/'triplet_orders_by_panel.csv')
+    counts=pd.read_csv(src/'triplet_counts_by_fold.csv')
+    rates=pd.read_csv(src/'triplet_population_rates.csv')
+    primary, secondary='paired11_primary','TxPert_train_secondary'
+    jit=np.linspace(-0.13,0.13,5)
+    p=Page('Supplementary_Figure_17',223)
+    p.text(3,217,'Repair of intervention relationships by cross-context transfer',8.1,weight='bold')
+    p.panel('a','Original TxPert inversions',3,207)
+    ordered=pd.read_csv(INPUT/'fig6/fixed_26_original.csv')
+    keys=[tuple(r) for r in ordered[['fold','A','B','C']].itertuples(index=False,name=None)]
+    heat=[];ticklabels=[]
+    for fold,A,B,C in keys:
+        q=cases[cases.fold.eq(fold)&cases.A.eq(A)&cases.B.eq(B)&cases.C.eq(C)&
+                cases.reference.eq(secondary)].sort_values('panel')
+        assert len(q)==5
+        heat.append(q.correct.astype(int).to_numpy());ticklabels.append(f'{A} / {C} / {B}')
+    a=p.ax(54,94,35,103,'a')
+    a.imshow(np.asarray(heat),aspect='auto',interpolation='nearest',cmap=ListedColormap(['#E6E9E9',TEAL]),vmin=0,vmax=1)
+    a.set(yticks=np.arange(26),yticklabels=ticklabels,xticks=np.arange(5),xticklabels=['1','2','3','4','5'])
+    a.tick_params(axis='y',labelsize=5.65,length=0,pad=3)
+    a.set_xticks(np.arange(-.5,5,1),minor=True);a.set_yticks(np.arange(-.5,26,1),minor=True)
+    a.grid(which='minor',color='white',lw=.8);a.tick_params(which='minor',length=0)
+    a.set_xlabel('Calibration panel')
+    p.text(3,201,'Reference / related / contrasting',6,color='#697578')
+    p.cv.add_patch(Rectangle((7,85),3,2.5,facecolor=TEAL,edgecolor='none'));p.text(11,86.25,'Corrected',6.1)
+    p.cv.add_patch(Rectangle((45,85),3,2.5,facecolor='#E6E9E9',edgecolor='none'));p.text(49,86.25,'Still inverted',6.1)
+
+    p.panel('b','Correct orders across references',101,207)
+    b=p.ax(117,153,59,43,'b')
+    for i,ref in enumerate([secondary,primary]):
+        q=fixed[fixed.reference.eq(ref)].sort_values('panel')
+        vals=q.correct.to_numpy()
+        b.bar(i,vals.mean(),width=.55,color=TEAL if i==0 else BLUE,edgecolor=INK,lw=.6)
+        b.scatter(i+jit,vals,s=14,color=INK,alpha=.6,zorder=3,edgecolor='none')
+    b.set(xlim=(-.6,1.6),ylim=(0,27),yticks=[0,13,26],xticks=[0,1],
+          xticklabels=['Training mean','Paired mean'],ylabel='Correct / 26');old.clean(b)
+    p.text(146,144,'Five calibration panels',6.2,color=INK,ha='center')
+
+    p.panel('c','Corrections and new errors',101,134)
+    c=p.ax(117,94,59,30,'c')
+    q=counts[counts.quality_mode.eq('all_three_four_criteria')&counts.eligibility.eq('fully_rematched_rule')&
+             counts.reference.eq(primary)]
+    bypanel=q.groupby('panel')[['baseline_errors_repaired','newly_damaged']].sum()
+    for i,(col,color) in enumerate([('baseline_errors_repaired',TEAL),('newly_damaged',OCHRE)]):
+        vals=bypanel[col].to_numpy();assert len(vals)==5
+        c.bar(i,vals.mean(),width=.55,color=color,edgecolor=INK,lw=.6)
+        c.scatter(i+jit,vals,s=12,color=INK,alpha=.6,zorder=3,edgecolor='none')
+    c.set(xlim=(-.6,1.6),ylim=(0,max(bypanel.max())+5),xticks=[0,1],
+          xticklabels=['Corrected','New errors'],ylabel='Triplets');old.clean(c)
+
+    p.panel('d','Overall inversion rate',3,70)
+    d=p.ax(37,22,52,38,'d')
+    sub=rates[rates.quality_mode.eq('all_three_four_criteria')&rates.eligibility.eq('fully_rematched_rule')]
+    for i,ref in enumerate([primary,secondary]):
+        r=sub[sub.reference.eq(ref)].iloc[0]
+        for shift,col,color in [(-.12,'baseline_inversion_rate','#959da0'),(.12,'inversion_rate',TEAL)]:
+            v,lo,hi=(100*r[col+suffix] for suffix in ['', '_low','_high'])
+            d.errorbar(v,i+shift,xerr=[[v-lo],[hi-v]],fmt='o',ms=4,mfc=color,mec=INK,mew=.35,
+                       ecolor=color,capsize=2)
+    d.set(xlim=(0,20),ylim=(1.5,-.5),yticks=[0,1],yticklabels=['Paired mean','Training mean'],
+          xlabel='Inverted triplets (%)');old.clean(d,'x')
+    p.key(15,7,'TxPert','#959da0',marker='o');p.key(46,7,'Calibrated map',TEAL,marker='o')
+    p.panel('e','Net reduction in inversion rate',101,70)
+    e=p.ax(128,22,48,38,'e')
+    configs=[('fully_rematched_rule',primary),('fully_rematched_rule',secondary),
+             ('frozen_quality_current_biology',primary),('frozen_quality_current_biology',secondary)]
+    rec=[]
+    for el,ref in configs:
+        r=rates[rates.quality_mode.eq('all_three_four_criteria')&
+               rates.eligibility.eq(el)&rates.reference.eq(ref)].iloc[0]
+        rec.append(tuple(r[c]*100 for c in ['net_error_reduction_rate','net_error_reduction_rate_low','net_error_reduction_rate_high']))
+    old.horizontal_points(e,rec,(-12,25),['Strict, paired','Strict, training','Original quality, paired','Original quality, training'],
+                      [TEAL,TEAL,BLUE,BLUE]);e.tick_params(axis='y',labelsize=5.8)
+    e.axvline(0,color=GREY,ls=(0,(3,2)),lw=.65);e.set_xlabel('Percentage points')
+    p.rows.append(['d','e'])
+    p.save({'top':(0,79,183,223),'bottom':(0,0,183,79)})
+
 def s19():
     p=Page('Supplementary_Figure_19',213)
-    p.panel('a','Full bridge pools',3,205,91.5)
+    p.panel('a','Unscaled transfer with all available pairs',3,206,91.5)
     full=table('all_pairs','SUMMARY.csv');full=full[full.context.eq('C')]
     methods=['TxPert_A_to_C','Measured_B_to_A_to_C','Direct_B_Copy','Wrong_B_to_A_to_C','Oracle_measured_A_to_C']
     labelmap={'TxPert_A_to_C':'TxPert route','Measured_B_to_A_to_C':'Measured two-hop','Direct_B_Copy':'Copy',
@@ -248,26 +317,39 @@ def s19():
     fullfold=table('all_pairs','FOLD_METRICS.csv')
     for i,metric in enumerate(['rho','CA']):
         a=summary_panel(p,full,methods,[labelmap.get(m,m.replace('_',' ')) for m in methods] if i==0 else ['']*len(methods),
-          47+73*i,151,58,42,f'a{i}',metric,[TEAL if m.startswith('Measured_B') else OCHRE if 'Copy' in m else GREY for m in methods],(-.1,.85))
+          47+73*i,164,58,32,f'a{i}',metric,[TEAL if m.startswith('Measured_B') else OCHRE if 'Copy' in m else GREY for m in methods],(-.1,.85))
         for j,m in enumerate(methods):
             q=fullfold[fullfold.method.eq(m)].sort_values('fold')
             a.scatter(q[metric],j+np.linspace(-.15,.15,len(q)),s=5,color=INK,alpha=.35,lw=0,zorder=4)
     p.rows.append(['a0','a1'])
     frozen=table('two_hop','SUMMARY.csv')
     fold=table('two_hop','FOLD_METRICS.csv')
-    for j,(route,title) in enumerate([('K562_RPE1_Jurkat','50 + 50 pairs: K562 → Jurkat'),('Jurkat_RPE1_K562','50 + 50 pairs: Jurkat → K562')]):
-        y=85-j*66;p.panel(chr(98+j),title,3,y+54,91.5)
+    for j,(route,title) in enumerate([('K562_RPE1_Jurkat','Unscaled transfer to Jurkat, 50 pairs per link'),('Jurkat_RPE1_K562','Unscaled transfer to K562, 50 pairs per link')]):
+        y=114-j*50;p.panel(chr(98+j),title,3,y+41,91.5)
         frame=frozen[frozen.route.eq(route)]
         methods=['TxPert_one_hop','Measured_two_hop','Source_Copy','Wrong_source_two_hop','Measured_A_diagnostic']
         labels=['TxPert route','Measured two-hop','Copy','Wrong identity','Measured RPE1']
         for i,metric in enumerate(['rho','CA']):
-            a=summary_panel(p,frame,methods,labels if i==0 else ['']*5,47+73*i,y,58,42,f'r{j}{i}',metric,
+            a=summary_panel(p,frame,methods,labels if i==0 else ['']*5,47+73*i,y,58,31,f'r{j}{i}',metric,
               [GREY,TEAL,OCHRE,GREY,BLUE],(-.1,.9))
             for k,m in enumerate(methods):
                 q=fold[fold.route.eq(route)&fold.method.eq(m)].sort_values('fold')
                 a.scatter(q[metric],k+np.linspace(-.15,.15,len(q)),s=5,color=INK,alpha=.35,lw=0,zorder=4)
         p.rows.append([f'r{j}0',f'r{j}1'])
-    p.cols=[['a0','r00','r10'],['a1','r01','r11']]
+    p.panel('d','CA before and after common terminal scaling',3,53,91.5)
+    sensitivity=pd.read_csv(INPUT/'fig6/calibrated_transfer/bridge_before_after_scaling.csv')
+    for i,(rt,label) in enumerate([('K562_RPE1_Jurkat','K562 → Jurkat'),('Jurkat_RPE1_K562','Jurkat → K562')]):
+        ax=p.ax(47+73*i,18,58,27,'d'+str(i))
+        frame=sensitivity.loc[sensitivity.route.eq(rt)]
+        for m,col,mk in [('learned','#417C70','o'),('txroute','#86929B','s')]:
+            vals=frame.loc[frame.method.eq(m),['CA_before_terminal_scale','CA']].mean()
+            ax.plot([0,1],vals,color=col,marker=mk,ms=3.3,lw=1)
+        ax.set(xlim=(-.35,1.35),xticks=[0,1],xticklabels=['Unscaled','Scaled'],
+               ylim=(.54,.78),yticks=[.55,.65,.75],ylabel='CA' if i==0 else '')
+        old.clean(ax);p.text(76+73*i,48,label,6.1,ha='center')
+    p.key(56,5,'Measured two-hop','#417C70',marker='o');p.key(108,5,'TxPert route','#86929B',marker='s')
+    p.rows.append(['d0','d1'])
+    p.cols=[['a0','r00','r10','d0'],['a1','r01','r11','d1']]
     p.save()
 
 def s20():
@@ -275,7 +357,7 @@ def s20():
     cp=table('bridge_copy','SUMMARY.csv')
     direct=table('direct_pairs','SUMMARY.csv')
     for row,(frame,routes,title,methods,labels) in enumerate([
-       (cp,['K562_RPE1_Jurkat','Jurkat_RPE1_K562'],'Indirect bridges',['Source_Copy','Bridge_mean_corrected_Copy','Measured_two_hop'],['Copy','Calibrated Copy','Two-hop']),
+       (cp,['K562_RPE1_Jurkat','Jurkat_RPE1_K562'],'Unscaled transfer across two bridges',['Source_Copy','Bridge_mean_corrected_Copy','Measured_two_hop'],['Copy','Calibrated Copy','Two-hop']),
        (direct,['K562_to_Jurkat','Jurkat_to_K562'],'50 direct pairs',['Source_Copy','Mean_corrected_Copy','Direct_residual_transfer'],['Copy','Calibrated Copy','Transfer'])]):
       for j,route in enumerate(routes):
         y=205-row*101-j*43

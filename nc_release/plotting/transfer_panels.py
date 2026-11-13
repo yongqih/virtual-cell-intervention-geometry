@@ -227,11 +227,11 @@ def supplement1():
     p.key(119,6,'TxPert',GREY,(0,(3,2)))
     p.save({'top':(0,140,183,218),'middle':(0,76,183,140),'bottom':(0,0,183,76)})
 
-def supplement2():
+def supplement2(calibrated_scores=None):
     p=Page('Supplementary_Figure_6_2',201)
     p.text(3,195,'Measurement reliability and cross-context concordance',8.1,weight='bold')
     measure=read('measurement_references.csv');mca=read('measurement_CA.csv').set_index('method')
-    labels=['RPE1 cell halves','Measured K562–RPE1','Residual, 32 pairs','TxPert']
+    labels=['RPE1 cell halves','Measured K562–RPE1','Calibrated map, 32 pairs' if calibrated_scores is not None else 'Residual, 32 pairs','TxPert']
     colors=[TEAL,OCHRE,TEAL,COLORS['TxPert_frozen']]
     for i,metric in enumerate(['CA','rho','top10']):
         x=42+47*i;a=p.ax(x,149,39,33,f'a{i}')
@@ -240,7 +240,11 @@ def supplement2():
             if method in ['RPE1_cell_split','Measured_K562_full_readout']:
                 r=mca.loc[method] if metric=='CA' else measure[measure.method.eq(method)&measure.reference.eq(PRIMARY)].iloc[0]
             else:r=BENCH[BENCH.method.eq(method)&BENCH.reference.eq(PRIMARY)].iloc[0]
-            records.append((r[metric],r[metric+'_ci_low'],r[metric+'_ci_high']))
+            if method=='ResidualLinearCV' and calibrated_scores is not None:
+                row=calibrated_scores.loc[metric]
+                records.append((row.estimate,row.low,row.high))
+            else:
+                records.append((r[metric],r[metric+'_ci_low'],r[metric+'_ci_high']))
         horizontal_points(a,records,(0,1.02) if metric!='top10' else (0,.63),labels if i==0 else ['']*4,colors)
         p.panel(chr(97+i),METRIC_NAMES[metric],x-4,187)
     p.rows.append(['a0','a1','a2'])
@@ -397,7 +401,7 @@ def supplement4():
 
 def supplement5():
     p=Page('Supplementary_Figure_6_5',146)
-    p.text(3,140,'Context transfer with matched source information',8.1,weight='bold')
+    p.text(3,140,'Unscaled transfer with matched source information',8.1,weight='bold')
     p.text(3,133,'32 paired interventions · 1,432 shared queries',6.3,color=GREY)
     data=read('matched_input_n32.csv')
     paired=read('matched_input_paired.csv')

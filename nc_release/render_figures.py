@@ -17,9 +17,9 @@ JOBS = {
     'S7': ('subspaces', 'supp33'), 'S8': ('subspaces', 'supp41'),
     'S9': ('subspaces', 'supp42'), 'S10': ('subspaces', 'supp43'),
     'S11': ('temporal', 'supplement11'), 'S12': ('temporal', 'supplement12'),
-    'S13': ('temporal', 'supplement13'), 'S14': ('fig6', 'old.supplement1'),
-    'S15': ('supplement_controls', 'render_s15'), 'S16': ('fig6', 'old.supplement2'),
-    'S17': ('fig6', 'old.supplement3'), 'S18': ('fig6', 'old.supplement4'),
+    'S13': ('temporal', 'supplement13'), 'S14': ('fig6', 's14'),
+    'S15': ('fig6', 'old.supplement5'), 'S16': ('fig6', 's16'),
+    'S17': ('fig6', 's17'), 'S18': ('fig6', 'old.supplement4'),
     'S19': ('fig6', 's19'), 'S20': ('fig6', 's20')
 }
 
@@ -36,7 +36,7 @@ def main():
         os.environ['IGC_PLOT_INPUTS'] = str(args.data.resolve())
         os.environ['IGC_FIGURE_OUTPUT'] = str(args.out.resolve())
         sys.path.insert(0, str(HERE / 'plotting'))
-        if args.single in ('S6','S8','S9','S10','S13','S16','S17'):
+        if args.single in ('S6','S8','S9','S10','S13'):
             import reader_labels
         mod, func = JOBS[args.single]
         obj = importlib.import_module(mod)

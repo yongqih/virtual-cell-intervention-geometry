@@ -1,6 +1,6 @@
 # Intervention geometry compression reveals a measurement strategy for virtual cells
 
-This repository contains the analysis and figure code for the study by Yongqi Huang, Hanzhi Wang and Parker Wilson. Version 2.0.0 covers six main figures, twenty supplementary figures and Supplementary Tables 1–4. The current repository also includes the rank-eight projection comparisons in Supplementary Fig. 7 and the Ahlmann-Eltze baseline in Supplementary Table 5. The figure source tables are included in the repository. Individual predictions, measured responses and paired bootstrap draws are distributed in the companion data archive.
+This repository contains the analysis and figure code for the study by Yongqi Huang, Hanzhi Wang and Parker Wilson. Version 2.0.0 covers six main figures, twenty supplementary figures and Supplementary Tables 1–4. The current repository also includes the rank-eight projection comparisons in Supplementary Fig. 7, the Ahlmann-Eltze baseline in Supplementary Table 5 and the calibrated transfer analyses in Fig. 6. The figure source tables are included in the repository. Individual predictions, measured responses and paired bootstrap draws are distributed in the companion data archive.
 
 ## Reproduce the figures
 
@@ -15,7 +15,7 @@ python nc_release/render_figures.py F1 F3 F4 F6 --out rendered
 
 Omit the figure names to draw all 26 figures. Supplementary figures are identified by S1 through S20. The command writes PNG, PDF and SVG files. Each figure runs in its own process. A GPU, network connection and model checkpoints are unnecessary for rendering. Arial was used for the reference figures. Matplotlib uses DejaVu Sans when Arial is unavailable.
 
-The primary plotting environment used Python 3.12.14 and Matplotlib 3.11.1. Figures F3, F4, S6, S7, S8, S9, S10, S13, S16 and S17 use Matplotlib 3.10.9. For exact raster comparisons, use the corresponding Python 3.10 requirements file (`nc_release/requirements-py310.txt` for this group). The numerical source tables are common to both environments.
+The primary plotting environment used Python 3.12.14 and Matplotlib 3.11.1. Figures F3, F4, F6, S6–S10, S13–S17, S19 and S20 use Matplotlib 3.10.9. For exact raster comparisons, use the corresponding Python 3.10 requirements file (`nc_release/requirements-py310.txt` for this group). The numerical source tables are common to both environments.
 
 ## Recalculate the results
 
@@ -39,6 +39,26 @@ The first command calculates 381 point estimates from saved arrays, including re
 | 6, S14–S20 | How can reference measurements support direct and indirect context transfer? | transfer, bridges, triplet_repair, multicontext, plot_inputs/fig6 |
 
 Supplementary Tables 1 and 2 describe the cohorts, readouts, fold sizes and the information supplied to each predictor. All five tables are available in [nc_release/supplementary_tables/](nc_release/supplementary_tables/).
+
+## Reproduce calibrated context transfer in Figure 6
+
+A K562 measurement supplies each query's anchor. Other interventions measured in both cell lines calibrate the map to RPE1. Across 1,432 held-out queries, 12 was the first calibration size at which the simultaneous lower bounds for CA, global ρ and Top-10 all exceeded frozen TxPert. Each comparison covers all three endpoints at 30 calibration sizes. Figure 6c compares the map with direct and mean-corrected Copy using the same complete source readout.
+
+Use the extracted v2.0.0 data directory as the first argument. This checkout supplies the additional measured source readouts, full calibration sets, fold scores and paired bootstrap draws in [calibrated_inputs](nc_release/calibrated_inputs/). The commands below refit one example of each map. Each command checks its held-out scores against the released fold and panel. Set `--fold` and `--panel` to 0–4 for the other splits and calibration panels. Direct transfer supports `--pairs` 2–32 and `--rule mse` for the MSE-selected comparator. Two pairs support the unscaled fit only.
+
+```sh
+python nc_release/calibrated_transfer.py ../data direct --pairs 12
+python nc_release/calibrated_transfer.py ../data matched --pairs 32
+python nc_release/calibrated_transfer.py ../data bridge --route K562_RPE1_Jurkat
+python nc_release/calibrated_transfer.py ../data full-bridge --route Jurkat_RPE1_K562
+python nc_release/calibrated_statistics.py
+python nc_release/calibrated_statistics.py --triplets ../data
+python nc_release/render_figures.py F6 S14 S15 S16 S17 S19 S20 --out rendered
+```
+
+Both bridge directions pass through RPE1. With 50 disjoint pairs per link, the measured and TxPert routes use the same terminal map, recipient mean and training-derived amplitude factor. With all eligible pairs, each link uses fold-averaged validation scores and the complete chain is amplitude-calibrated. The [Copy comparisons](nc_release/calibrated_inputs/copy_intervals.csv) identify the design and interval family for each contrast.
+
+The statistics command reconstructs simultaneous intervals from paired draws. Its triplet option refits the 25 direct maps, verifies their signed cosine margins on the 26 original cases and recomputes population rates and intervals from the eligible triplets and intervention resampling weights. The fixed case count and the overall inversion rate use different denominators. [Figure tables](nc_release/plot_inputs/fig6/calibrated_transfer/) include each panel's repair count and the population estimates under both reference means.
 
 ## Reproduce Supplementary Figure 7
 

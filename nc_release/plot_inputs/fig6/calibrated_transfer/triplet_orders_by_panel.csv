@@ -1,0 +1,11 @@
+reference,panel,n,observed_correct,tx_inverted,repaired,remaining_inverted,correct,damaged,tied
+TxPert_train_secondary,0,26,26,26,23,3,23,0,0
+TxPert_train_secondary,1,26,26,26,24,2,24,0,0
+TxPert_train_secondary,2,26,26,26,23,3,23,0,0
+TxPert_train_secondary,3,26,26,26,22,4,22,0,0
+TxPert_train_secondary,4,26,26,26,23,3,23,0,0
+paired11_primary,0,26,26,25,23,3,23,1,0
+paired11_primary,1,26,26,25,24,2,24,1,0
+paired11_primary,2,26,26,25,23,3,23,1,0
+paired11_primary,3,26,26,25,21,5,21,1,0
+paired11_primary,4,26,26,24,22,3,23,1,0
